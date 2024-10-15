@@ -4,6 +4,7 @@ import { VALIDATION_PIPE_OPTIONS } from './utils';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { QueryingModule } from './querying/querying.module';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
   providers: [
@@ -12,6 +13,6 @@ import { QueryingModule } from './querying/querying.module';
       useValue: new ValidationPipe(VALIDATION_PIPE_OPTIONS),
     },
   ],
-  imports: [ConfigModule, DatabaseModule, QueryingModule],
+  imports: [ConfigModule, DatabaseModule, QueryingModule, LoggerModule],
 })
 export class CommonModule {}

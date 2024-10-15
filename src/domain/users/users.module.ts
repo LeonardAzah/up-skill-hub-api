@@ -9,5 +9,6 @@ import { User } from './entities/user.entity';
   imports: [QueryingModule, DatabaseModule, DatabaseModule.forFeature([User])],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository],
+  exports: [UsersService, UsersRepository],
 })
 export class UsersModule {}
