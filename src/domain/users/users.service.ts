@@ -17,6 +17,7 @@ export class UsersService {
     const user = new User({
       ...createUserDto,
       password: await bcrypt.hash(createUserDto.password, 10),
+      role: 'USER',
     });
     return this.usersRepository.create(user);
   }

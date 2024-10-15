@@ -12,9 +12,5 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  readonly profile: string;
-
-  @IsOptional()
-  @IsString()
-  readonly role: string;
+  readonly profile?: string;
 }
