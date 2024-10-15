@@ -2,6 +2,7 @@ import { AbstractEntity } from './abstract.entity';
 import { Logger, NotFoundException } from '@nestjs/common';
 import {
   EntityManager,
+  FindManyOptions,
   FindOptionsRelations,
   FindOptionsWhere,
   Repository,
@@ -47,8 +48,9 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     return this.findOne(where);
   }
 
-  async find(where: FindOptionsWhere<T>): Promise<T[]> {
-    return this.entityRepository.findBy(where);
+  async find(options?: FindManyOptions<T>) {
+    const [data, count] = await this.entityRepository.findAndCount(options);
+    return { data, count };
   }
 
   async findOneAndDelete(where: FindOptionsWhere<T>) {

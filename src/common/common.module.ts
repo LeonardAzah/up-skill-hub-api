@@ -3,6 +3,7 @@ import { APP_PIPE } from '@nestjs/core';
 import { VALIDATION_PIPE_OPTIONS } from './utils';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
+import { QueryingModule } from './querying/querying.module';
 
 @Module({
   providers: [
@@ -11,6 +12,6 @@ import { DatabaseModule } from './database/database.module';
       useValue: new ValidationPipe(VALIDATION_PIPE_OPTIONS),
     },
   ],
-  imports: [ConfigModule, DatabaseModule],
+  imports: [ConfigModule, DatabaseModule, QueryingModule],
 })
 export class CommonModule {}

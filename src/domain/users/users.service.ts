@@ -4,10 +4,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.reposisoty';
 import * as bcrypt from 'bcryptjs';
 import { User } from './entities/user.entity';
+import { DefaultPageSize, PaginationDto, PaginationService } from 'common';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly paginationService: PaginationService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     const user = new User({
@@ -17,8 +21,16 @@ export class UsersService {
     return this.usersRepository.create(user);
   }
 
-  async findAll() {
-    return this.usersRepository.find({});
+  async findAll(paginationDto: PaginationDto) {
+    const { page } = paginationDto;
+    const limit = paginationDto.limit ?? DefaultPageSize.USER;
+    const offset = this.paginationService.calculateOffset(limit, page);
+    const result = await this.usersRepository.find({
+      skip: offset,
+      take: limit,
+    });
+    const meta = this.paginationService.createMeta(limit, page, result.count);
+    return { data: result.data, meta };
   }
 
   async findOne(id: string) {
