@@ -1,5 +1,5 @@
-import { AbstractEntity, RegistryDates } from 'common';
-import { Column, Entity } from 'typeorm';
+import { AbstractEntity } from 'common';
+import { Column, CreateDateColumn, Entity } from 'typeorm';
 
 @Entity()
 export class User extends AbstractEntity<User> {
@@ -17,6 +17,10 @@ export class User extends AbstractEntity<User> {
 
   @Column()
   role: string;
-  @Column(() => RegistryDates, { prefix: false })
-  registryDates: RegistryDates;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @CreateDateColumn()
+  updatedAt: Date;
 }
