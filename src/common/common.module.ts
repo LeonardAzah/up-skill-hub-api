@@ -1,5 +1,9 @@
-import { Module, ValidationPipe } from '@nestjs/common';
-import { APP_PIPE } from '@nestjs/core';
+import {
+  ClassSerializerInterceptor,
+  Module,
+  ValidationPipe,
+} from '@nestjs/common';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { VALIDATION_PIPE_OPTIONS } from './utils';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
@@ -15,6 +19,10 @@ import { HashingService } from './hashing/hashing.service';
       useValue: new ValidationPipe(VALIDATION_PIPE_OPTIONS),
     },
     { provide: HashingService, useClass: BcryptService },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
+    },
   ],
   imports: [ConfigModule, DatabaseModule, QueryingModule, LoggerModule],
   exports: [HashingService],

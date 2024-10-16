@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
 import { Column, CreateDateColumn, Entity } from 'typeorm';
 
@@ -9,6 +10,7 @@ export class User extends AbstractEntity<User> {
   @Column({ unique: true })
   email: string;
 
+  @Exclude()
   @Column()
   password: string;
 
