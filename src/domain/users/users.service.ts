@@ -1,23 +1,20 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.reposisoty';
 import { User } from './entities/user.entity';
 import { DefaultPageSize, PaginationDto, PaginationService } from 'common';
-import { HashingService } from 'common/hashing/hashing.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly paginationService: PaginationService,
-    private readonly hashingService: HashingService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
     const user = new User({
       ...createUserDto,
-      password: await this.hashingService.hash(createUserDto.password),
       role: 'USER',
     });
     return this.usersRepository.create(user);

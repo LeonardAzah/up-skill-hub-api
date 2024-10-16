@@ -5,6 +5,7 @@ import { UsersRepository } from './users.reposisoty';
 import { DatabaseModule, QueryingModule } from 'common';
 import { User } from './entities/user.entity';
 import { CommonModule } from 'common/common.module';
+import { UsersSubscriber } from './subscribers/users.subscribers';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { CommonModule } from 'common/common.module';
     DatabaseModule.forFeature([User]),
   ],
   controllers: [UsersController],
-  providers: [UsersService, UsersRepository],
+  providers: [UsersService, UsersRepository, UsersSubscriber],
   exports: [UsersService, UsersRepository],
 })
 export class UsersModule {}
