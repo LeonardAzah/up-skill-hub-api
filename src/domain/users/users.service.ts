@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.reposisoty';
 import { User } from './entities/user.entity';
 import { DefaultPageSize, PaginationDto, PaginationService } from 'common';
+import { Role } from 'auth/roles/enums/roles.enum';
 
 @Injectable()
 export class UsersService {
@@ -14,6 +15,22 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const user = new User(createUserDto);
+    return this.usersRepository.create(user);
+  }
+
+  async createTeacher(createUserDto: CreateUserDto) {
+    const user = new User({
+      ...createUserDto,
+      role: Role.TEACHER,
+    });
+    return this.usersRepository.create(user);
+  }
+
+  async createAdmin(createUserDto: CreateUserDto) {
+    const user = new User({
+      ...createUserDto,
+      role: Role.ADMIN,
+    });
     return this.usersRepository.create(user);
   }
 
