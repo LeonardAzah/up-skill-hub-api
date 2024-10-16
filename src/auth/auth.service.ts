@@ -7,6 +7,7 @@ import { Response } from 'express';
 import { User } from 'users/entities/user.entity';
 import { UsersRepository } from 'users/users.reposisoty';
 import { RequestUser } from './interfaces/request-user.interface';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -35,8 +36,8 @@ export class AuthService {
   }
 
   async login(user: RequestUser, response: Response) {
-    const payload = {
-      userId: user.id,
+    const payload: JwtPayload = {
+      sub: user.id,
       role: user.role,
       email: user.email,
     };
@@ -50,5 +51,23 @@ export class AuthService {
       httpOnly: true,
       expires,
     });
+  }
+
+  async validateJwt(payload: JwtPayload) {
+    const user = await this.usersRepository.findOne({ id: payload.sub });
+    if (!user) {
+      throw new UnauthorizedException('Invalid token');
+    }
+    return this.createRequestUser(user);
+  }
+
+  async getProfile(id: string) {
+    return this.usersRepository.findOne({ id });
+  }
+
+  private createRequestUser(user: User) {
+    const { id, role, email } = user;
+    const requestUser: RequestUser = { id, role, email };
+    return requestUser;
   }
 }

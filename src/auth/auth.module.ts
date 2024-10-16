@@ -8,6 +8,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { UsersModule } from 'users/users.module';
 import { CommonModule } from 'common/common.module';
 import { LoginValidationMiddleware } from './middleware/login-validation/login-validation.middleware';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { LoginValidationMiddleware } from './middleware/login-validation/login-v
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, LocalStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule implements NestModule {
