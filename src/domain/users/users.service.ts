@@ -13,10 +13,7 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const user = new User({
-      ...createUserDto,
-      role: 'USER',
-    });
+    const user = new User(createUserDto);
     return this.usersRepository.create(user);
   }
 

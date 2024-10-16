@@ -1,3 +1,4 @@
+import { Role } from 'auth/roles/enums/roles.enum';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
 import { Column, CreateDateColumn, Entity } from 'typeorm';
@@ -17,8 +18,13 @@ export class User extends AbstractEntity<User> {
   @Column({ nullable: true })
   profile: string;
 
-  @Column()
-  role: string;
+  @Column({
+    type: 'enum',
+    enum: Role,
+    enumName: 'role_enum',
+    default: Role.STUDENT,
+  })
+  role: Role;
 
   @CreateDateColumn()
   createdAt: Date;
