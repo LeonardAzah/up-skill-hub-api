@@ -1,6 +1,7 @@
 import { AbstractEntity } from './abstract.entity';
 import { Logger, NotFoundException } from '@nestjs/common';
 import {
+  DeepPartial,
   EntityManager,
   FindManyOptions,
   FindOptionsRelations,
@@ -55,5 +56,12 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
 
   async findOneAndDelete(where: FindOptionsWhere<T>) {
     await this.entityRepository.delete(where);
+  }
+
+  async softRemove(where: DeepPartial<T>) {
+    await this.entityRepository.softRemove(where);
+  }
+  async remove(where: FindOptionsWhere<T>) {
+    await this.entityRepository.remove(where);
   }
 }

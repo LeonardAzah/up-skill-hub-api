@@ -1,7 +1,7 @@
 import { Role } from 'auth/roles/enums/roles.enum';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
-import { Column, CreateDateColumn, Entity } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity } from 'typeorm';
 
 @Entity()
 export class User extends AbstractEntity<User> {
@@ -31,4 +31,11 @@ export class User extends AbstractEntity<User> {
 
   @CreateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
+  get isDeleted() {
+    return !!this.deletedAt;
+  }
 }

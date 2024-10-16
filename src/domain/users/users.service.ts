@@ -1,16 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.reposisoty';
 import { User } from './entities/user.entity';
 import { DefaultPageSize, PaginationDto, PaginationService } from 'common';
 import { Role } from 'auth/roles/enums/roles.enum';
+import { LoginDto } from 'auth/dto/login.dto';
+import { HashingService } from 'common/hashing/hashing.service';
+import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { compareUserId } from 'auth/utils/authorization.util';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly paginationService: PaginationService,
+    private readonly hashingService: HashingService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -50,11 +60,48 @@ export class UsersService {
     return this.usersRepository.findOne({ id });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    currentUser: RequestUser,
+  ) {
+    await compareUserId(currentUser, id);
     return this.usersRepository.findOneAndUpdate({ id }, updateUserDto);
   }
 
-  async remove(id: string) {
-    return this.usersRepository.findOneAndDelete({ id });
+  async remove(id: string, soft: boolean, currentUser: RequestUser) {
+    await compareUserId(currentUser, id);
+    if (currentUser.role !== Role.ADMIN) {
+      if (!soft) {
+        throw new ForbiddenException('Forbidden resource');
+      }
+    }
+    const user = await this.usersRepository.findOne({ id });
+    return soft
+      ? this.usersRepository.softRemove(user)
+      : this.usersRepository.remove(user);
+  }
+
+  async recover(loginDto: LoginDto) {
+    const { email, password } = loginDto;
+    const user = await this.usersRepository.findOne({
+      email,
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const isMatch = await this.hashingService.compare(password, user.password);
+
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.isDeleted) {
+      throw new ConflictException('User not deleted');
+    }
+
+    return this.usersRepository.recover(user);
   }
 }

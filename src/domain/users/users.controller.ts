@@ -15,6 +15,11 @@ import { IdDto, PaginationDto } from 'common';
 import { Public } from 'auth/decorators/public.decorator';
 import { Role } from 'auth/roles/enums/roles.enum';
 import { User } from './entities/user.entity';
+import { Roles } from 'auth/decorators/roles.decorator';
+import { CurrentUser } from 'auth/decorators/current-user.decorator';
+import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { LoginDto } from 'auth/dto/login.dto';
+import { RemoveDto } from 'common/dto/remove.dto';
 
 @Controller('users')
 export class UsersController {
@@ -36,9 +41,16 @@ export class UsersController {
     return this.usersService.createAdmin(createUserDto);
   }
 
+  @Roles(Role.ADMIN)
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
     return this.usersService.findAll(paginationDto);
+  }
+
+  @Public()
+  @Patch('recover')
+  recover(@Body() loginDto: LoginDto) {
+    return this.usersService.recover(loginDto);
   }
 
   @Get(':id')
@@ -47,12 +59,20 @@ export class UsersController {
   }
 
   @Patch(':id')
-  async update(@Param() { id }: IdDto, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  async update(
+    @Param() { id }: IdDto,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.usersService.update(id, updateUserDto, user);
   }
 
   @Delete(':id')
-  async remove(@Param() { id }: IdDto) {
-    return this.usersService.remove(id);
+  async remove(
+    @Param() { id }: IdDto,
+    @Query() { soft }: RemoveDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.usersService.remove(id, soft, user);
   }
 }
