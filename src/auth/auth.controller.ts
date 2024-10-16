@@ -14,6 +14,7 @@ import { User } from 'users/entities/user.entity';
 import { Response } from 'express';
 import { RequestUser } from './interfaces/request-user.interface';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +22,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
+  @Public()
   @Post('login')
   async login(
     @CurrentUser() user: RequestUser,
@@ -30,7 +32,6 @@ export class AuthController {
     response.send(user);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@CurrentUser() { id }: RequestUser) {
     return this.authService.getProfile(id);
