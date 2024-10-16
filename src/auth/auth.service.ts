@@ -27,12 +27,8 @@ export class AuthService {
     if (!passwordIsValid) {
       throw new UnauthorizedException('Invalid Credentials');
     }
-    const requestUser: RequestUser = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    };
-    return requestUser;
+
+    return this.createRequestUser(user);
   }
 
   async login(user: RequestUser, response: Response) {
