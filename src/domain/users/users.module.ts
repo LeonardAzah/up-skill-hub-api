@@ -4,9 +4,15 @@ import { UsersController } from './users.controller';
 import { UsersRepository } from './users.reposisoty';
 import { DatabaseModule, QueryingModule } from 'common';
 import { User } from './entities/user.entity';
+import { CommonModule } from 'common/common.module';
 
 @Module({
-  imports: [QueryingModule, DatabaseModule, DatabaseModule.forFeature([User])],
+  imports: [
+    QueryingModule,
+    DatabaseModule,
+    CommonModule,
+    DatabaseModule.forFeature([User]),
+  ],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository],
   exports: [UsersService, UsersRepository],
