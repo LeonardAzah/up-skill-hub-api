@@ -1,10 +1,9 @@
 import { AbstractEntity } from './abstract.entity';
 import { Logger, NotFoundException } from '@nestjs/common';
 import {
-  DeepPartial,
   EntityManager,
   FindManyOptions,
-  FindOptionsRelations,
+  FindOneOptions,
   FindOptionsWhere,
   Repository,
 } from 'typeorm';
@@ -21,13 +20,10 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     return this.entityManager.save(entity);
   }
 
-  async findOne(
-    where: FindOptionsWhere<T>,
-    relations?: FindOptionsRelations<T>,
-  ): Promise<T> {
-    const entity = await this.entityRepository.findOne({ where });
+  async findOne(options: FindOneOptions<T>): Promise<T> {
+    const entity = await this.entityRepository.findOne(options);
     if (!entity) {
-      this.logger.warn('Entity was not found with where', where);
+      this.logger.warn('Entity was not found with where', options);
       throw new NotFoundException('Entity was not found');
     }
     return entity;
@@ -46,7 +42,7 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
       this.logger.warn('Entity was not found with filterQuery', where);
       throw new NotFoundException('Entity was not found');
     }
-    return this.findOne(where);
+    return this.findOne({ where });
   }
 
   async find(options?: FindManyOptions<T>) {
@@ -58,10 +54,13 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     await this.entityRepository.delete(where);
   }
 
-  async softRemove(where: DeepPartial<T>) {
+  async softRemove(where: T) {
     await this.entityRepository.softRemove(where);
   }
-  async remove(where: FindOptionsWhere<T>) {
+  async remove(where: T) {
     await this.entityRepository.remove(where);
+  }
+  async recover(where: T) {
+    await this.entityRepository.recover(where);
   }
 }

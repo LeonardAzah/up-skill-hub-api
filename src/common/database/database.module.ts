@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { ConfigModule } from 'common/config';
+import { DatabaseExceptionFilter } from './exception-filter/database-exception/database-exception.filter';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { ConfigModule } from 'common/config';
       inject: [ConfigService],
     }),
   ],
+
+  providers: [{ provide: APP_FILTER, useClass: DatabaseExceptionFilter }],
 })
 export class DatabaseModule {
   static forFeature(models: EntityClassOrSchema[]) {

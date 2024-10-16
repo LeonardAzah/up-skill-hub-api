@@ -57,7 +57,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return this.usersRepository.findOne({ id });
+    return this.usersRepository.findOne({ where: { id } });
   }
 
   async update(
@@ -76,7 +76,7 @@ export class UsersService {
         throw new ForbiddenException('Forbidden resource');
       }
     }
-    const user = await this.usersRepository.findOne({ id });
+    const user = await this.usersRepository.findOne({ where: { id } });
     return soft
       ? this.usersRepository.softRemove(user)
       : this.usersRepository.remove(user);
@@ -85,7 +85,8 @@ export class UsersService {
   async recover(loginDto: LoginDto) {
     const { email, password } = loginDto;
     const user = await this.usersRepository.findOne({
-      email,
+      where: { email },
+      withDeleted: true,
     });
 
     if (!user) {

@@ -19,7 +19,7 @@ export class AuthService {
   ) {}
 
   async verifyuser(email: string, password: string) {
-    const user = await this.usersRepository.findOne({ email });
+    const user = await this.usersRepository.findOne({ where: { email } });
     const passwordIsValid = await this.hashingService.compare(
       password,
       user.password,
@@ -50,7 +50,9 @@ export class AuthService {
   }
 
   async validateJwt(payload: JwtPayload) {
-    const user = await this.usersRepository.findOne({ id: payload.sub });
+    const user = await this.usersRepository.findOne({
+      where: { id: payload.sub },
+    });
     if (!user) {
       throw new UnauthorizedException('Invalid token');
     }
@@ -58,7 +60,7 @@ export class AuthService {
   }
 
   async getProfile(id: string) {
-    return this.usersRepository.findOne({ id });
+    return this.usersRepository.findOne({ where: { id } });
   }
 
   private createRequestUser(user: User) {
