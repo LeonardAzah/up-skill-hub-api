@@ -59,6 +59,19 @@ export class AuthService {
     return this.createRequestUser(user);
   }
 
+  async validateRefreshJwt(payload: JwtPayload) {
+    const user = await this.usersRepository.findOne({
+      where: { id: payload.sub },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Invalid token');
+    }
+    return {
+      attributes: this.createRequestUser(user),
+      refreshTokenExpiresAt: new Date(1000),
+    };
+  }
+
   async getProfile(id: string) {
     return this.usersRepository.findOne({ where: { id } });
   }

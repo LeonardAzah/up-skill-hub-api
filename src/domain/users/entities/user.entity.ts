@@ -1,7 +1,14 @@
+import { AuthRefreshToken } from 'auth/entities/auth-refresh-token.entity';
 import { Role } from 'auth/roles/enums/roles.enum';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
-import { Column, CreateDateColumn, DeleteDateColumn, Entity } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+} from 'typeorm';
 
 @Entity()
 export class User extends AbstractEntity<User> {

@@ -15,11 +15,25 @@ import { Response } from 'express';
 import { RequestUser } from './interfaces/request-user.interface';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from './decorators/public.decorator';
+import {
+  ApiBody,
+  ApiCookieAuth,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { LoginDto } from './dto/login.dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiBody({ type: LoginDto })
+  @ApiOkResponse({
+    headers: {
+      'Set-Cookie': { description: 'JWT cookie', schema: { type: 'string' } },
+    },
+  })
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   @Public()

@@ -14,13 +14,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { IdDto, PaginationDto } from 'common';
 import { Public } from 'auth/decorators/public.decorator';
 import { Role } from 'auth/roles/enums/roles.enum';
-import { User } from './entities/user.entity';
 import { Roles } from 'auth/decorators/roles.decorator';
 import { CurrentUser } from 'auth/decorators/current-user.decorator';
 import { RequestUser } from 'auth/interfaces/request-user.interface';
 import { LoginDto } from 'auth/dto/login.dto';
 import { RemoveDto } from 'common/dto/remove.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

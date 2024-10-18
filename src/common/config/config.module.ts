@@ -19,6 +19,7 @@ import * as joi from 'joi';
         JWT_SECRET: joi.string().required(),
         PORT: joi.number().required(),
         JWT_EXPIRATION: joi.number().required(),
+        REFRESH_TOKEN_PRIVATE_KEY: joi.string().required(),
       }),
     }),
   ],
