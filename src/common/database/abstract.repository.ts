@@ -63,4 +63,15 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
   async recover(where: T) {
     await this.entityRepository.recover(where);
   }
+
+  async existsBy(where: FindOptionsWhere<T>) {
+    return this.entityRepository.existsBy(where);
+  }
+
+  async delete(where: FindOptionsWhere<T>) {
+    await this.entityRepository.delete(where);
+  }
+  async deleteBy(where: FindOptionsWhere<T>): Promise<void> {
+    await this.entityRepository.delete(where);
+  }
 }

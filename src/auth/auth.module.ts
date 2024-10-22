@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from 'common';
+import { ConfigModule, DatabaseModule } from 'common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -12,12 +12,21 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh-token.strategy';
+import { AuthTokenService } from './auth-token.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AuthTokensRepository } from './authToken.repository';
+import { AuthRefreshToken } from './entities/auth-refresh-token.entity';
 
 @Module({
   imports: [
     UsersModule,
     ConfigModule,
+    DatabaseModule,
+    DatabaseModule.forFeature([AuthRefreshToken]),
+
     CommonModule,
+    ScheduleModule.forRoot(),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -33,8 +42,11 @@ import { RolesGuard } from './guards/roles.guard';
     AuthService,
     LocalStrategy,
     JwtStrategy,
+    JwtRefreshStrategy,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    AuthTokenService,
+    AuthTokensRepository,
   ],
   controllers: [AuthController],
 })

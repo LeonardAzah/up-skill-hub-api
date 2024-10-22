@@ -4,6 +4,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { AuthService } from 'auth/auth.service';
 import { JwtPayload } from 'auth/interfaces/jwt-payload.interface';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Request } from 'express';
+import { log } from 'console';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -16,19 +18,28 @@ export class JwtRefreshStrategy extends PassportStrategy(
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: any) =>
-          request?.cookies?.RefreshToken ||
-          request?.RefreshToken ||
-          request?.headers.RefreshToken,
+        (request: Request) =>
+          request?.cookies?.AuthenticationRefreshToken ||
+          request?.headers?.AuthenticationRefreshToken,
       ]),
       secretOrKey: configService.get('REFRESH_TOKEN_PRIVATE_KEY'),
+      passReqToCallback: true,
     });
   }
-  async validate(payload: JwtPayload) {
+
+  async validate(request: Request, payload: JwtPayload) {
     try {
-      return await this.authService.validateRefreshJwt(payload);
+      const refreshToken =
+        request?.cookies?.AuthenticationRefreshToken ||
+        request?.headers?.AuthenticationRefreshToken;
+
+      if (!refreshToken) {
+        throw new UnauthorizedException('Refresh token not provided');
+      }
+
+      return this.authService.validateRefreshJwt(refreshToken, payload);
     } catch (error) {
-      throw new UnauthorizedException(error);
+      throw new UnauthorizedException(error.message);
     }
   }
 }

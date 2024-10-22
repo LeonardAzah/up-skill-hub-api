@@ -42,6 +42,9 @@ export class User extends AbstractEntity<User> {
   @DeleteDateColumn()
   deletedAt: Date;
 
+  @OneToMany(() => AuthRefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens: AuthRefreshToken[];
+
   get isDeleted() {
     return !!this.deletedAt;
   }

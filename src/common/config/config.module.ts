@@ -20,6 +20,7 @@ import * as joi from 'joi';
         PORT: joi.number().required(),
         JWT_EXPIRATION: joi.number().required(),
         REFRESH_TOKEN_PRIVATE_KEY: joi.string().required(),
+        REFRESH_JWT_EXPIRATION: joi.number().required(),
       }),
     }),
   ],
