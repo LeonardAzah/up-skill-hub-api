@@ -3,6 +3,7 @@ import {
   IsOptional,
   IsString,
   IsStrongPassword,
+  IsUrl,
   Length,
 } from 'class-validator';
 
@@ -17,6 +18,6 @@ export class CreateUserDto {
   readonly password: string;
 
   @IsOptional()
-  @IsString()
+  @IsUrl()
   readonly profile?: string;
 }
