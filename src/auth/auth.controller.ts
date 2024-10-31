@@ -21,6 +21,7 @@ import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { JwtCookieHeader } from './swagger/jwt-cookie.header';
 import { log } from 'console';
 import { RefreshUser } from './interfaces/rerefresh-user.interface';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -76,6 +77,40 @@ export class AuthController {
       email: user.email,
     };
     response.send(userData);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuth(@Req() req) {}
+
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Get('/google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthCallback(
+    @Req() req,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.googleLogin(req.user, response);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Get('/google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthCallbackTeacher(
+    @Req() req,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    await this.authService.googleLoginTeacher(req.user, response);
+    const user: RequestUser = {
+      id: req.user.id,
+      email: req.user.email,
+      role: req.user.role,
+    };
+    return user;
   }
 
   @Get('profile')

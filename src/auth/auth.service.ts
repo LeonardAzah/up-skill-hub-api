@@ -8,6 +8,8 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { AuthTokenService } from './auth-token.service';
 import { AuthTokensRepository } from './authToken.repository';
 import { RefreshUser } from './interfaces/rerefresh-user.interface';
+import { GoogleRegisterDto } from './dto/google-register.dto';
+import { Role } from './roles/enums/roles.enum';
 
 @Injectable()
 export class AuthService {
@@ -95,6 +97,39 @@ export class AuthService {
     const newUser = await this.createRequestUser(user);
 
     return { ...newUser, refreshToken };
+  }
+
+  async googleLogin(googleUser: GoogleRegisterDto, response: Response) {
+    let user;
+    user = await this.usersRepository.findOne({
+      where: { email: googleUser.email },
+    });
+    if (!user) {
+      user = new User({
+        ...googleUser,
+        role: Role.STUDENT,
+      });
+      await this.usersRepository.create(user);
+    }
+    const requestUser = this.createRequestUser(user);
+    return this.login(requestUser, response);
+  }
+
+  async googleLoginTeacher(googleUser: GoogleRegisterDto, response: Response) {
+    let user;
+    user = await this.usersRepository.findOne({
+      where: { email: googleUser.email },
+    });
+    if (!user) {
+      user = new User({
+        ...googleUser,
+        role: Role.TEACHER,
+      });
+      await this.usersRepository.create(user);
+    }
+
+    const requestUser = this.createRequestUser(user);
+    return this.login(requestUser, response);
   }
 
   async getProfile(id: string) {

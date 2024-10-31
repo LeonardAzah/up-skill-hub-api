@@ -7,6 +7,7 @@ import { Response } from 'express';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { AuthTokensRepository } from './authToken.repository';
 import { AuthRefreshToken } from 'auth/entities/auth-refresh-token.entity';
+import { HashingService } from 'common/hashing/hashing.service';
 
 @Injectable()
 export class AuthTokenService {
@@ -14,6 +15,7 @@ export class AuthTokenService {
     private readonly authTokensRepository: AuthTokensRepository,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly hashingService: HashingService,
   ) {}
 
   async generateRefreshToken(
