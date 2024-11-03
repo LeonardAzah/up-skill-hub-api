@@ -1,26 +1,108 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersRepository } from './users.reposisoty';
+import { User } from './entities/user.entity';
+import { DefaultPageSize, PaginationDto, PaginationService } from 'common';
+import { Role } from 'auth/roles/enums/roles.enum';
+import { LoginDto } from 'auth/dto/login.dto';
+import { HashingService } from 'common/hashing/hashing.service';
+import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { compareUserId } from 'auth/utils/authorization.util';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly paginationService: PaginationService,
+    private readonly hashingService: HashingService,
+  ) {}
+
+  async create(createUserDto: CreateUserDto) {
+    const user = new User(createUserDto);
+    return this.usersRepository.create(user);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async createTeacher(createUserDto: CreateUserDto) {
+    const user = new User({
+      ...createUserDto,
+      role: Role.TEACHER,
+    });
+    return this.usersRepository.create(user);
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} user`;
+  async createAdmin(createUserDto: CreateUserDto) {
+    const user = new User({
+      ...createUserDto,
+      role: Role.ADMIN,
+    });
+    return this.usersRepository.create(user);
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findAll(paginationDto: PaginationDto) {
+    const { page } = paginationDto;
+    const limit = paginationDto.limit ?? DefaultPageSize.USER;
+    const offset = this.paginationService.calculateOffset(limit, page);
+    const result = await this.usersRepository.find({
+      skip: offset,
+      take: limit,
+    });
+    const meta = this.paginationService.createMeta(limit, page, result.count);
+    return { data: result.data, meta };
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} user`;
+  async findOne(id: string) {
+    return this.usersRepository.findOne({ where: { id } });
+  }
+
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    currentUser: RequestUser,
+  ) {
+    await compareUserId(currentUser, id);
+    return this.usersRepository.findOneAndUpdate({ id }, updateUserDto);
+  }
+
+  async remove(id: string, soft: boolean, currentUser: RequestUser) {
+    await compareUserId(currentUser, id);
+    if (currentUser.role !== Role.ADMIN) {
+      if (!soft) {
+        throw new ForbiddenException('Forbidden resource');
+      }
+    }
+    const user = await this.usersRepository.findOne({ where: { id } });
+    return soft
+      ? this.usersRepository.softRemove(user)
+      : this.usersRepository.remove(user);
+  }
+
+  async recover(loginDto: LoginDto) {
+    const { email, password } = loginDto;
+    const user = await this.usersRepository.findOne({
+      where: { email },
+      withDeleted: true,
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const isMatch = await this.hashingService.compare(password, user.password);
+
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.isDeleted) {
+      throw new ConflictException('User not deleted');
+    }
+
+    return this.usersRepository.recover(user);
   }
 }
