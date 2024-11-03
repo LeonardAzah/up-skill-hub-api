@@ -101,9 +101,8 @@ export class AuthService {
 
   async googleLogin(googleUser: GoogleRegisterDto, response: Response) {
     let user;
-    user = await this.usersRepository.findOne({
-      where: { email: googleUser.email },
-    });
+    user = await this.usersRepository.findByEmail({ email: googleUser.email });
+
     if (!user) {
       user = new User({
         ...googleUser,
@@ -112,24 +111,8 @@ export class AuthService {
       await this.usersRepository.create(user);
     }
     const requestUser = this.createRequestUser(user);
-    return this.login(requestUser, response);
-  }
-
-  async googleLoginTeacher(googleUser: GoogleRegisterDto, response: Response) {
-    let user;
-    user = await this.usersRepository.findOne({
-      where: { email: googleUser.email },
-    });
-    if (!user) {
-      user = new User({
-        ...googleUser,
-        role: Role.TEACHER,
-      });
-      await this.usersRepository.create(user);
-    }
-
-    const requestUser = this.createRequestUser(user);
-    return this.login(requestUser, response);
+    await this.login(requestUser, response);
+    return requestUser;
   }
 
   async getProfile(id: string) {

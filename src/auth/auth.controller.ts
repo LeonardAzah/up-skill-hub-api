@@ -22,6 +22,7 @@ import { JwtCookieHeader } from './swagger/jwt-cookie.header';
 import { log } from 'console';
 import { RefreshUser } from './interfaces/rerefresh-user.interface';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { GoogleRegisterDto } from './dto/google-register.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -87,30 +88,18 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Public()
-  @Get('/google/callback')
+  @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   async googleAuthCallback(
     @Req() req,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.googleLogin(req.user, response);
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Public()
-  @Get('/google/callback')
-  @UseGuards(GoogleAuthGuard)
-  async googleAuthCallbackTeacher(
-    @Req() req,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    await this.authService.googleLoginTeacher(req.user, response);
-    const user: RequestUser = {
-      id: req.user.id,
+    const user: GoogleRegisterDto = {
+      name: req.user.name,
       email: req.user.email,
-      role: req.user.role,
+      profile: req.user.profile,
     };
-    return user;
+    return this.authService.googleLogin(user, response);
   }
 
   @Get('profile')

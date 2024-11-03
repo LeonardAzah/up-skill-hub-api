@@ -29,6 +29,10 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     return entity;
   }
 
+  async findByEmail(where: FindOptionsWhere<T>): Promise<T> {
+    return this.entityRepository.findOne({ where });
+  }
+
   async findOneAndUpdate(
     where: FindOptionsWhere<T>,
     partilEntity: QueryDeepPartialEntity<T>,

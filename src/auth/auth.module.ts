@@ -17,6 +17,7 @@ import { AuthTokenService } from './auth-token.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthTokensRepository } from './authToken.repository';
 import { AuthRefreshToken } from './entities/auth-refresh-token.entity';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AuthRefreshToken } from './entities/auth-refresh-token.entity';
     LocalStrategy,
     JwtStrategy,
     JwtRefreshStrategy,
+    GoogleStrategy,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     AuthTokenService,
