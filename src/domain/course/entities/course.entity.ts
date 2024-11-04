@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from 'users/entities/user.entity';
+import { Category } from './category.entity';
 
 @Entity()
 export class Course extends AbstractEntity<Course> {
@@ -34,6 +35,12 @@ export class Course extends AbstractEntity<Course> {
 
   @Column()
   discountPrice: number;
+
+  @ManyToOne(() => Category, (category) => category.courses, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  category: Category;
 
   @ManyToOne(() => User, (user) => user.course, {
     onDelete: 'CASCADE',

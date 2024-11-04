@@ -1,3 +1,4 @@
+import { AbstractEntity } from 'common';
 import {
   Entity,
   Column,
@@ -6,6 +7,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
+import { Course } from './course.entity';
 
 @Entity()
 export class Category extends AbstractEntity<Category> {
@@ -20,6 +22,15 @@ export class Category extends AbstractEntity<Category> {
     onDelete: 'SET NULL',
   })
   parent?: Category;
+
+  @ManyToOne(() => Category, (category) => category.courses, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  category: Category;
+
+  @OneToMany(() => Course, (course) => course.category)
+  courses: Course[];
 
   @OneToMany(() => Category, (category) => category.parent)
   children: Category[];
