@@ -2,12 +2,14 @@ import { AuthRefreshToken } from 'auth/entities/auth-refresh-token.entity';
 import { Role } from 'auth/roles/enums/roles.enum';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
+import { Course } from 'course/entities/course.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
   OneToMany,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -36,7 +38,7 @@ export class User extends AbstractEntity<User> {
   @CreateDateColumn()
   createdAt: Date;
 
-  @CreateDateColumn()
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @DeleteDateColumn()
@@ -44,6 +46,9 @@ export class User extends AbstractEntity<User> {
 
   @OneToMany(() => AuthRefreshToken, (refreshToken) => refreshToken.user)
   refreshTokens: AuthRefreshToken[];
+
+  @OneToMany(() => Course, (course) => course.user)
+  course: Course[];
 
   get isDeleted() {
     return !!this.deletedAt;
