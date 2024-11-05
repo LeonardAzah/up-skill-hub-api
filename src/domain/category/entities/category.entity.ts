@@ -1,13 +1,13 @@
 import { AbstractEntity } from 'common';
+import { Course } from 'course/entities/course.entity';
 import {
-  Entity,
   Column,
-  ManyToOne,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
+  ManyToOne,
   OneToMany,
+  UpdateDateColumn,
 } from 'typeorm';
-import { Course } from './course.entity';
 
 @Entity()
 export class Category extends AbstractEntity<Category> {
