@@ -28,14 +28,15 @@ export class Course extends AbstractEntity<Course> {
     type: 'enum',
     enum: Levels,
     enumName: 'course_levels',
+    nullable: true,
   })
-  levels: Levels[];
+  levels?: Levels[];
 
-  @Column()
-  price: number;
+  @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
+  price?: number;
 
-  @Column()
-  discountPrice: number;
+  @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
+  discountPrice?: number;
 
   @ManyToOne(() => Category, (category) => category.courses, {
     onDelete: 'SET NULL',
@@ -48,23 +49,16 @@ export class Course extends AbstractEntity<Course> {
     onDelete: 'CASCADE',
     nullable: false,
   })
-  @JoinColumn({ name: 'instructorId' })
   owner: User;
 
-  @ManyToMany(() => User, (user) => user.enrolledCourses)
-  enrolledStudents: User[];
-
-  @Column()
-  instructorId: string;
+  @ManyToMany(() => User, (user) => user.enrolledCourses, { nullable: true })
+  enrolledStudents?: User[];
 
   @Column({ nullable: true })
-  categoryId: string;
+  thumbnailUrl?: string;
 
-  @Column()
-  thumbnailUrl: string;
-
-  @Column()
-  promoVideoUrl: string;
+  @Column({ nullable: true })
+  promoVideoUrl?: string;
 
   @Column({
     type: 'enum',

@@ -7,7 +7,14 @@ import { CourseModule } from './domain/course/course.module';
 import { CategoryModule } from './domain/category/category.module';
 
 @Module({
-  imports: [UsersModule, CommonModule, AuthModule, LoggerModule, CourseModule, CategoryModule],
+  imports: [
+    UsersModule,
+    CommonModule,
+    AuthModule,
+    LoggerModule,
+    CourseModule,
+    CategoryModule,
+  ],
   controllers: [],
   providers: [],
 })

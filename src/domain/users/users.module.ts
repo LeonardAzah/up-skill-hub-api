@@ -7,13 +7,14 @@ import { User } from './entities/user.entity';
 import { CommonModule } from 'common/common.module';
 import { UsersSubscriber } from './subscribers/users.subscribers';
 import { Category } from 'category/entities/category.entity';
+import { Course } from 'course/entities/course.entity';
 
 @Module({
   imports: [
     QueryingModule,
     DatabaseModule,
     CommonModule,
-    DatabaseModule.forFeature([User, Category]),
+    DatabaseModule.forFeature([User, Category, Course]),
   ],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository, UsersSubscriber],
