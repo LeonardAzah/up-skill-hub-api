@@ -5,6 +5,7 @@ import { CourseRepository } from './course.repository';
 import { Course } from './entities/course.entity';
 import { UsersRepository } from 'users/users.reposisoty';
 import { CategoryRepository } from 'category/category.repository';
+import { DefaultPageSize, PaginationDto, PaginationService } from 'common';
 
 @Injectable()
 export class CourseService {
@@ -12,6 +13,7 @@ export class CourseService {
     private readonly courseRepository: CourseRepository,
     private readonly usersRepository: UsersRepository,
     private readonly categoryRepository: CategoryRepository,
+    private readonly paginationService: PaginationService,
   ) {}
   async create(id: string, createCourseDto: CreateCourseDto) {
     const { categoryId } = createCourseDto;
@@ -23,8 +25,16 @@ export class CourseService {
     return this.courseRepository.create(course);
   }
 
-  async findAll() {
-    return this.courseRepository.find({});
+  async findAll(paginationDto: PaginationDto) {
+    const { page } = paginationDto;
+    const limit = paginationDto.limit ?? DefaultPageSize.COURSE;
+    const offset = this.paginationService.calculateOffset(limit, page);
+    const result = await this.courseRepository.find({
+      skip: offset,
+      take: limit,
+    });
+    const meta = this.paginationService.createMeta(limit, page, result.count);
+    return { data: result.data, meta };
   }
 
   async findOne(id: string) {

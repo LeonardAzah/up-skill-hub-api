@@ -6,14 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CurrentUser } from 'auth/decorators/current-user.decorator';
 import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { PaginationDto } from 'common';
 
-@Controller('course')
+@Controller('courses')
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
 
@@ -26,8 +28,8 @@ export class CourseController {
   }
 
   @Get()
-  findAll() {
-    return this.courseService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.courseService.findAll(paginationDto);
   }
 
   @Get(':id')
