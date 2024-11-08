@@ -5,7 +5,17 @@ import { CourseRepository } from './course.repository';
 import { Course } from './entities/course.entity';
 import { UsersRepository } from 'users/users.reposisoty';
 import { CategoryRepository } from 'category/category.repository';
-import { DefaultPageSize, PaginationDto, PaginationService } from 'common';
+import {
+  DefaultPageSize,
+  FilteringService,
+  OrderDto,
+  PaginationDto,
+  PaginationService,
+} from 'common';
+import { CoursesQueryDto } from './dto/course-query.dto';
+import { ILike, MoreThanOrEqual } from 'typeorm';
+import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { compareUserId } from 'common/utils/authorization.util';
 
 @Injectable()
 export class CourseService {
@@ -14,22 +24,49 @@ export class CourseService {
     private readonly usersRepository: UsersRepository,
     private readonly categoryRepository: CategoryRepository,
     private readonly paginationService: PaginationService,
+    private readonly filteringService: FilteringService,
   ) {}
   async create(id: string, createCourseDto: CreateCourseDto) {
-    const { categoryId } = createCourseDto;
     const user = await this.usersRepository.findOne({ where: { id } });
-    const category = await this.categoryRepository.findOne({
-      where: { id: categoryId },
-    });
-    const course = new Course({ owner: user, category, ...createCourseDto });
+
+    const course = new Course({ owner: user, ...createCourseDto });
     return this.courseRepository.create(course);
   }
 
-  async findAll(paginationDto: PaginationDto) {
-    const { page } = paginationDto;
-    const limit = paginationDto.limit ?? DefaultPageSize.COURSE;
+  async findAll(coursesQueryDto: CoursesQueryDto) {
+    const {
+      page,
+      duration,
+      features,
+      course_level,
+      lang,
+      price,
+      q,
+      ratings,
+      categoryId,
+      sort,
+      order,
+    } = coursesQueryDto;
+    const limit = coursesQueryDto.limit ?? DefaultPageSize.COURSE;
     const offset = this.paginationService.calculateOffset(limit, page);
+    let category;
+    if (categoryId) {
+      category = await this.categoryRepository.findOne({
+        where: { id: categoryId },
+      });
+    }
+
     const result = await this.courseRepository.find({
+      where: {
+        title: this.filteringService.constains(q),
+        duration,
+        // features,
+        course_level,
+        language: lang,
+        ratings: ratings ? MoreThanOrEqual(ratings) : undefined,
+        category,
+      },
+      // order: { [sort]: order },
       skip: offset,
       take: limit,
     });
@@ -38,10 +75,23 @@ export class CourseService {
   }
 
   async findOne(id: string) {
-    return this.courseRepository.findOne({ where: { id } });
+    return this.courseRepository.findOne({
+      where: { id },
+      relations: ['sections', 'sections.lessons'],
+    });
   }
 
-  async update(id: string, updateCourseDto: UpdateCourseDto) {
+  async update(
+    id: string,
+    updateCourseDto: UpdateCourseDto,
+    currentUser: RequestUser,
+  ) {
+    const course = await this.courseRepository.findOne({
+      where: { id },
+      relations: { owner: true },
+    });
+    await compareUserId(currentUser, course.owner.id);
+
     return this.courseRepository.findOneAndUpdate({ id }, updateCourseDto);
   }
 

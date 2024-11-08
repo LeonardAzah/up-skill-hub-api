@@ -9,6 +9,7 @@ import { CourseRepository } from './course.repository';
 import { Category } from 'category/entities/category.entity';
 import { UsersModule } from 'users/users.module';
 import { CategoryModule } from 'category/category.module';
+import { CourseSubscriber } from './subscribers/course.subscriber';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { CategoryModule } from 'category/category.module';
     DatabaseModule.forFeature([Course, User, Category]),
   ],
   controllers: [CourseController],
-  providers: [CourseService, CourseRepository],
+  providers: [CourseService, CourseRepository, CourseSubscriber],
   exports: [CourseService, CourseRepository],
 })
 export class CourseModule {}

@@ -1,4 +1,5 @@
-import { IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
+import { Language } from 'common';
 
 export class CreateCourseDto {
   @IsString()
@@ -8,7 +9,8 @@ export class CreateCourseDto {
   description: string;
 
   @IsString()
-  language: string;
+  @IsEnum(Language)
+  language: Language;
 
   @IsString()
   categoryId: string;

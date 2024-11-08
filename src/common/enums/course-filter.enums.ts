@@ -26,8 +26,3 @@ export enum Price {
   Free = 'price-free',
   Paid = 'price-paid',
 }
-
-export enum Sort {
-  Relevance = 'relevance',
-  Popularity = 'popularity',
-}

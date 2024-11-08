@@ -13,7 +13,7 @@ import { Role } from 'auth/roles/enums/roles.enum';
 import { LoginDto } from 'auth/dto/login.dto';
 import { HashingService } from 'common/hashing/hashing.service';
 import { RequestUser } from 'auth/interfaces/request-user.interface';
-import { compareUserId } from 'auth/utils/authorization.util';
+import { compareUserId } from 'common/utils/authorization.util';
 
 @Injectable()
 export class UsersService {

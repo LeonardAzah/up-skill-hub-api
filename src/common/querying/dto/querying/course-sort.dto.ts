@@ -1,5 +1,5 @@
 import { IsIn, IsOptional } from 'class-validator';
-import { OrderDto } from 'common/querying/dto/order.dto';
+import { OrderDto } from '../order.dto';
 
 const Sort = [
   'most-reviewed',

@@ -1,6 +1,5 @@
 import { Category } from 'category/entities/category.entity';
-import { AbstractEntity } from 'common';
-import { Levels } from 'course/enums/level.enum';
+import { AbstractEntity, CourseLevel, Features, Language } from 'common';
 import { Status } from 'course/enums/status.enum';
 import {
   Column,
@@ -9,9 +8,11 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from 'users/entities/user.entity';
+import { Section } from './section.entity';
 
 @Entity()
 export class Course extends AbstractEntity<Course> {
@@ -21,19 +22,29 @@ export class Course extends AbstractEntity<Course> {
   @Column()
   description: string;
 
-  @Column()
-  language: string;
+  @Column({
+    type: 'enum',
+    enum: Language,
+    enumName: 'language',
+  })
+  language: Language;
+
+  @Column({ nullable: true })
+  duration?: string;
 
   @Column({
     type: 'enum',
-    enum: Levels,
+    enum: CourseLevel,
     enumName: 'course_levels',
     nullable: true,
   })
-  levels?: Levels[];
+  course_level?: CourseLevel[];
 
   @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
   price?: number;
+
+  @Column({ type: 'float', nullable: true })
+  ratings: number;
 
   @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
   discountPrice?: number;
@@ -50,6 +61,12 @@ export class Course extends AbstractEntity<Course> {
     nullable: false,
   })
   owner: User;
+
+  @OneToMany(() => Section, (section) => section.course, {
+    cascade: true,
+    nullable: true,
+  })
+  sections?: Section[];
 
   @ManyToMany(() => User, (user) => user.enrolledCourses, { nullable: true })
   enrolledStudents?: User[];

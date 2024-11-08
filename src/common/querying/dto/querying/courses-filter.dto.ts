@@ -1,4 +1,10 @@
-import { IsArray, IsEnum, IsNumber, IsOptional } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { NameFilterDto } from '../name-filter.dto';
 import { Type } from 'class-transformer';
 import {
@@ -14,6 +20,10 @@ export class CoursesFilterDto extends NameFilterDto {
   @IsNumber()
   @Type(() => Number)
   ratings?: number;
+
+  @IsOptional()
+  @IsString()
+  categoryId: string;
 
   @IsOptional()
   @IsEnum(Language)
