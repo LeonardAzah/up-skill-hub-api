@@ -16,6 +16,7 @@ import { Lesson } from './entities/lesson.entity';
 import { SectionsService } from './sections/sections.service';
 import { LessonsService } from './lessons/lessons.service';
 import { SectionsRepository } from './sections/section.repository';
+import { SectionsSubscriber } from './subscribers/section.subscriber';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SectionsRepository } from './sections/section.repository';
     CourseService,
     CourseRepository,
     CourseSubscriber,
+    SectionsSubscriber,
     SectionsRepository,
     LessonsRepository,
     SectionsService,
