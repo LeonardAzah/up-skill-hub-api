@@ -12,7 +12,6 @@ export class CreateLessonDto {
   @IsUrl()
   contentUrl: string;
 
-  @IsOptional()
   @IsString()
-  sectionId?: string;
+  sectionId: string;
 }

@@ -12,32 +12,34 @@ import { Category } from 'category/entities/category.entity';
 import { BeforeQueryEvent } from 'typeorm/subscriber/event/QueryEvent';
 import { Section } from 'course/entities/section.entity';
 import { CourseRepository } from 'course/course.repository';
+import { Lesson } from 'course/entities/lesson.entity';
+import { SectionsRepository } from 'course/sections/section.repository';
 
 @Injectable()
 @EventSubscriber()
-export class SectionsSubscriber implements EntitySubscriberInterface<Section> {
+export class LessonsSubscriber implements EntitySubscriberInterface<Lesson> {
   constructor(
     private readonly dataSource: DataSource,
-    private readonly courseRepository: CourseRepository,
+    private readonly sectionsRepository: SectionsRepository,
   ) {
     dataSource.subscribers.push(this);
   }
 
   listenTo() {
-    return Section;
+    return Lesson;
   }
 
-  async beforeInsert(event: InsertEvent<Section>) {
-    await this.setCourse(event);
+  async beforeInsert(event: InsertEvent<Lesson>) {
+    await this.setSection(event);
   }
 
-  private async setCourse(event: InsertEvent<Section> | UpdateEvent<Section>) {
-    const courseId = event.entity['courseId'];
+  private async setSection(event: InsertEvent<Lesson> | UpdateEvent<Lesson>) {
+    const sectionId = event.entity['sectionId'];
 
-    const course = await this.courseRepository.findOne({
-      where: { id: courseId },
+    const course = await this.sectionsRepository.findOne({
+      where: { id: sectionId },
     });
     event.entity['course'] = course;
-    delete event.entity['courseId'];
+    delete event.entity['sectionId'];
   }
 }
