@@ -12,7 +12,7 @@ export class Lesson extends AbstractEntity<Lesson> {
     type: 'enum',
     enum: LessonType,
   })
-  lessontype: LessonType;
+  lessonType: LessonType;
 
   @Column()
   contentUrl: string;
