@@ -8,12 +8,14 @@ import { CommonModule } from 'common/common.module';
 import { UsersSubscriber } from './subscribers/users.subscribers';
 import { Category } from 'category/entities/category.entity';
 import { Course } from 'course/entities/course.entity';
+import { CloudinaryModule } from 'cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     QueryingModule,
     DatabaseModule,
     CommonModule,
+    CloudinaryModule,
     DatabaseModule.forFeature([User, Category, Course]),
   ],
   controllers: [UsersController],

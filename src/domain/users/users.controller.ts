@@ -7,6 +7,11 @@ import {
   Param,
   Delete,
   Query,
+  UploadedFile,
+  UseInterceptors,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,7 +24,8 @@ import { CurrentUser } from 'auth/decorators/current-user.decorator';
 import { RequestUser } from 'auth/interfaces/request-user.interface';
 import { LoginDto } from 'auth/dto/login.dto';
 import { RemoveDto } from 'common/dto/remove.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
@@ -29,6 +35,21 @@ export class UsersController {
   async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
+
+  @Post('profile')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProfile(
+    @CurrentUser() user: RequestUser,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /png|jpeg/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {}
 
   @Public()
   @Post('teacher')
