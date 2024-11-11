@@ -41,12 +41,14 @@ export class UsersController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: FileSchema })
   @Post('profile')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('profile'))
   async uploadProfile(
     @CurrentUser() { id }: RequestUser,
     @UploadedFile(createParseFilePipe('2MB', 'png', 'jpeg'))
-    file: Express.Multer.File,
-  ) {}
+    profile: Express.Multer.File,
+  ) {
+    return this.usersService.uploadProfile(id, profile);
+  }
 
   @Public()
   @Post('teacher')

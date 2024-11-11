@@ -16,6 +16,8 @@ import { CoursesQueryDto } from './dto/course-query.dto';
 import { ILike, MoreThanOrEqual } from 'typeorm';
 import { RequestUser } from 'auth/interfaces/request-user.interface';
 import { compareUserId } from 'common/utils/authorization.util';
+import { ConfigService } from '@nestjs/config';
+import { CloudinaryService } from 'cloudinary/cloudinary.service';
 
 @Injectable()
 export class CourseService {
@@ -25,6 +27,8 @@ export class CourseService {
     private readonly categoryRepository: CategoryRepository,
     private readonly paginationService: PaginationService,
     private readonly filteringService: FilteringService,
+    private readonly configService: ConfigService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
   async create(id: string, createCourseDto: CreateCourseDto) {
     const user = await this.usersRepository.findOne({ where: { id } });
@@ -98,5 +102,16 @@ export class CourseService {
   async remove(id: string) {
     const course = await this.courseRepository.findOne({ where: { id } });
     return this.courseRepository.remove(course);
+  }
+
+  async uploadThumbnail(id: string, thumbnail: Express.Multer.File) {
+    const folder = this.configService.get<string>('CLOUDINARY_FOLDER_COURSE');
+    const course = await this.courseRepository.findOne({ where: { id } });
+    const imageData = await this.cloudinaryService.uploadFile(
+      thumbnail,
+      folder,
+    );
+    course.thumbnailUrl = imageData.secure_url;
+    return this.courseRepository.create(course);
   }
 }
