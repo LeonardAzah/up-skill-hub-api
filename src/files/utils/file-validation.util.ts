@@ -9,6 +9,11 @@ import * as bytes from 'bytes';
 type FileSize = `${number}${'KB' | 'MB' | 'GB'}`;
 type FileType = 'png' | 'jpeg' | 'pdf';
 
+const createFileTypeRegex = (fileTypes: FileType[]) => {
+  const mediaTypes = fileTypes.map((type) => lookup(type));
+  return new RegExp(mediaTypes.join('|'));
+};
+
 export const createFileValidators = (
   maxSize: FileSize,
   fileTypes: NonEmptyArray<FileType>,
