@@ -26,6 +26,7 @@ import { LoginDto } from 'auth/dto/login.dto';
 import { RemoveDto } from 'common/dto/remove.dto';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { createParseFilePipe } from 'cloudinary/files/utils/file-validation.util';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
@@ -39,15 +40,8 @@ export class UsersController {
   @Post('profile')
   @UseInterceptors(FileInterceptor('file'))
   async uploadProfile(
-    @CurrentUser() user: RequestUser,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
-          new FileTypeValidator({ fileType: /png|jpeg/ }),
-        ],
-      }),
-    )
+    @CurrentUser() { id }: RequestUser,
+    @UploadedFile(createParseFilePipe('2MB', 'png', 'jpeg'))
     file: Express.Multer.File,
   ) {}
 

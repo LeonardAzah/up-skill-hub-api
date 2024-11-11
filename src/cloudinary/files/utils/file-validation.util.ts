@@ -8,7 +8,7 @@ import {
 import { NonEmptyArray } from 'common';
 import * as bytes from 'bytes';
 import { lookup } from 'mime-types';
-import { FileSignatureValidator } from 'files/validators/file-signature.validator';
+import { FileSignatureValidator } from 'cloudinary/files/validators/file-signature.validator';
 
 type FileSize = `${number}${'KB' | 'MB' | 'GB'}`;
 type FileType = 'png' | 'jpeg' | 'pdf';
@@ -20,7 +20,7 @@ const createFileTypeRegex = (fileTypes: FileType[]) => {
 
 export const createFileValidators = (
   maxSize: FileSize,
-  fileTypes: NonEmptyArray<FileType>,
+  fileTypes: FileType[],
 ): FileValidator[] => {
   const fileTypeRegex = createFileTypeRegex(fileTypes);
 

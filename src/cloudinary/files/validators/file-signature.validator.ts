@@ -1,5 +1,4 @@
 import { FileValidator } from '@nestjs/common';
-import { IFile } from '@nestjs/common/pipes/file/interfaces';
 import magicBytes from 'magic-bytes.js';
 
 export class FileSignatureValidator extends FileValidator {
