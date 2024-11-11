@@ -24,9 +24,10 @@ import { CurrentUser } from 'auth/decorators/current-user.decorator';
 import { RequestUser } from 'auth/interfaces/request-user.interface';
 import { LoginDto } from 'auth/dto/login.dto';
 import { RemoveDto } from 'common/dto/remove.dto';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createParseFilePipe } from 'cloudinary/files/utils/file-validation.util';
+import { FileSchema } from 'cloudinary/files/swagger/schemas/file.schema';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
@@ -37,6 +38,8 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: FileSchema })
   @Post('profile')
   @UseInterceptors(FileInterceptor('file'))
   async uploadProfile(
