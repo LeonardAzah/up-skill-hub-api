@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CourseController } from './course.controller';
-import { DatabaseModule, QueryingModule } from 'common';
+import { ConfigModule, DatabaseModule, QueryingModule } from 'common';
 import { CommonModule } from 'common/common.module';
 import { User } from 'users/entities/user.entity';
 import { Course } from './entities/course.entity';
@@ -17,6 +17,7 @@ import { SectionsService } from './sections/sections.service';
 import { LessonsService } from './lessons/lessons.service';
 import { SectionsRepository } from './sections/section.repository';
 import { SectionsSubscriber } from './subscribers/section.subscriber';
+import { CloudinaryModule } from 'cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -25,6 +26,8 @@ import { SectionsSubscriber } from './subscribers/section.subscriber';
     UsersModule,
     CategoryModule,
     CommonModule,
+    ConfigModule,
+    CloudinaryModule,
     DatabaseModule.forFeature([Course, User, Category, Section, Lesson]),
   ],
   controllers: [CourseController],

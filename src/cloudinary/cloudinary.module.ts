@@ -4,9 +4,10 @@ import { CloudinaryProvider } from './config/cloudinary.config';
 import { CommonModule } from 'common/common.module';
 import { APP_FILTER } from '@nestjs/core';
 import { FilesExceptionFilter } from './files/exception-filters/files-exception/files-exception.filter';
+import { ConfigModule } from 'common';
 
 @Module({
-  imports: [CommonModule],
+  imports: [CommonModule, ConfigModule],
   providers: [
     CloudinaryService,
     CloudinaryProvider,
