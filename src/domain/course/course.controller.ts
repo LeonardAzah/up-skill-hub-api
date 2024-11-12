@@ -15,7 +15,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CurrentUser } from 'auth/decorators/current-user.decorator';
 import { RequestUser } from 'auth/interfaces/request-user.interface';
-import { IdDto, PaginationDto } from 'common';
+import { IdDto } from 'common';
 import { CoursesQueryDto } from './dto/course-query.dto';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileSchema } from 'cloudinary/files/swagger/schemas/file.schema';

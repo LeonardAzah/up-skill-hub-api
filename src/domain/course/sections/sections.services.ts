@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { SectionsRepository } from './section.repository';
-import { CreateSectionDto } from 'course/dto/create-section.dto';
-import { Section } from 'course/entities/section.entity';
 import { CourseRepository } from 'course/course.repository';
+import { Section } from 'course/entities/section.entity';
+import { CreateSectionDto } from 'course/dto/create-section.dto';
 import { UpdateSectionDto } from 'course/dto/update-section.dto';
 
 @Injectable()
@@ -17,13 +17,6 @@ export class SectionsService {
 
     const section = new Section({ course, ...createSection });
     return this.sectionsRepository.create(section);
-  }
-
-  async find(id: string) {
-    const course = await this.courseRepository.findOne({
-      where: { id },
-    });
-    return course.sections;
   }
 
   async upadte(id: string, updateSection: UpdateSectionDto) {

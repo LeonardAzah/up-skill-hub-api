@@ -65,6 +65,7 @@ export class Course extends AbstractEntity<Course> {
   @OneToMany(() => Section, (section) => section.course, {
     cascade: true,
     nullable: true,
+    eager: true,
   })
   sections?: Section[];
 

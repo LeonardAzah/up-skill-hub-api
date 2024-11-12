@@ -14,6 +14,7 @@ export class Section extends AbstractEntity<Section> {
   @OneToMany(() => Lesson, (lesson) => lesson.section, {
     cascade: true,
     nullable: true,
+    eager: true,
   })
   lessons?: Lesson[];
 }

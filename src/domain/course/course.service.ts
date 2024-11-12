@@ -13,11 +13,12 @@ import {
   PaginationService,
 } from 'common';
 import { CoursesQueryDto } from './dto/course-query.dto';
-import { ILike, MoreThanOrEqual } from 'typeorm';
+import { MoreThanOrEqual } from 'typeorm';
 import { RequestUser } from 'auth/interfaces/request-user.interface';
 import { compareUserId } from 'common/utils/authorization.util';
 import { ConfigService } from '@nestjs/config';
 import { CloudinaryService } from 'cloudinary/cloudinary.service';
+import { SectionsRepository } from './sections/section.repository';
 
 @Injectable()
 export class CourseService {
