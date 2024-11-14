@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from 'course/lessons/dto/create-lesson.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createContentParseFilePipe } from 'cloudinary/files/utils/file-validation.util';
 import { IdDto } from 'common';
@@ -18,6 +18,7 @@ import { UploadContentDto } from 'course/lessons/dto/upload-content.dto';
 import { multerOptions } from 'cloudinary/config/multer.config';
 import { UpdateLessonDto } from 'course/lessons/dto/update-lesson.dto';
 import { RemoveLessonDto } from './dto/remove-lesson.dto';
+import { FileSchema } from 'cloudinary/files/swagger/schemas/file.schema';
 
 @ApiTags('lessons')
 @Controller('lessons')
@@ -29,6 +30,8 @@ export class LessonsController {
     return this.lessonsService.create(createLessonDto);
   }
 
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: FileSchema })
   @Post('content')
   @UseInterceptors(FileInterceptor('content', multerOptions))
   async uploadContent(

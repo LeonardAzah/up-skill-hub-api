@@ -29,21 +29,15 @@ export class CoursesFilterDto extends NameFilterDto {
   @IsEnum(Language)
   lang?: Language;
 
-  @IsOptional()
-  @IsEnum(Duration)
-  duration?: Duration;
-
-  @IsOptional()
-  @IsArray()
-  @IsEnum(Features, { each: true })
-  @Type(() => String)
-  features?: Features[];
+  // @IsOptional()
+  // @IsEnum(Duration)
+  // duration?: Duration;
 
   @IsOptional()
   @IsEnum(CourseLevel)
   course_level?: CourseLevel;
 
-  @IsOptional()
-  @IsEnum(Price)
-  price?: Price;
+  // @IsOptional()
+  // @IsEnum(Price)
+  // price?: Price;
 }

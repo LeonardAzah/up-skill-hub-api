@@ -60,6 +60,7 @@ export class LessonsService {
     lesson.contentUrl = contentData.secure_url;
     lesson.lessonType = contentData.resource_type;
 
-    return this.lessonsRepository.create(lesson);
+    await this.lessonsRepository.create(lesson);
+    return contentData.secure_url;
   }
 }

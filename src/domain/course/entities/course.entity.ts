@@ -29,8 +29,8 @@ export class Course extends AbstractEntity<Course> {
   })
   language: Language;
 
-  @Column({ nullable: true })
-  duration?: string;
+  // @Column({ nullable: true })
+  // duration?: string;
 
   @Column({
     type: 'enum',

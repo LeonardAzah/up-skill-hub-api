@@ -26,8 +26,9 @@ export class SectionsService {
     return course.sections;
   }
 
-  async upadte(id: string, updateSection: UpdateSectionDto) {
-    return this.sectionsRepository.findOneAndUpdate({ id }, updateSection);
+  async upadte(updateSection: UpdateSectionDto) {
+    const { sectionId, ...section } = updateSection;
+    return this.sectionsRepository.findOneAndUpdate({ id: sectionId }, section);
   }
 
   async remove(id: string) {

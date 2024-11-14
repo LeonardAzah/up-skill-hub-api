@@ -12,6 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { SectionsService } from './sections.service';
 import { CreateSectionDto } from 'course/sections/dto/create-section.dto';
 import { UpdateSectionDto } from 'course/sections/dto/update-section.dto';
+import { RemoveSectionDto } from './dto/remove-section.dto';
 
 @ApiTags('sections')
 @Controller('sections')
@@ -31,16 +32,13 @@ export class SectionsController {
     return this.sectionsService.find(id);
   }
 
-  @Patch(':id')
-  async update(
-    @Param() { id }: IdDto,
-    @Body() updateSectionDto: UpdateSectionDto,
-  ) {
-    return this.sectionsService.upadte(id, updateSectionDto);
+  @Patch()
+  async update(@Body() updateSectionDto: UpdateSectionDto) {
+    return this.sectionsService.upadte(updateSectionDto);
   }
 
-  @Delete(':id')
-  async remove(@Param() { id }: IdDto) {
+  @Delete()
+  async remove(@Body() { id }: RemoveSectionDto) {
     return this.sectionsService.remove(id);
   }
 }
