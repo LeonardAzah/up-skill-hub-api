@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { SectionsRepository } from './section.repository';
-import { CreateSectionDto } from 'course/dto/create-section.dto';
+import { CreateSectionDto } from 'course/sections/dto/create-section.dto';
 import { Section } from 'course/entities/section.entity';
 import { CourseRepository } from 'course/course.repository';
-import { UpdateSectionDto } from 'course/dto/update-section.dto';
+import { UpdateSectionDto } from 'course/sections/dto/update-section.dto';
 
 @Injectable()
 export class SectionsService {

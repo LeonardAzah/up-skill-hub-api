@@ -11,10 +11,11 @@ export class Lesson extends AbstractEntity<Lesson> {
   @Column({
     type: 'enum',
     enum: LessonType,
+    nullable: true,
   })
   lessonType: LessonType;
 
-  @Column()
+  @Column({ nullable: true })
   contentUrl: string;
 
   @ManyToOne(() => Section, (section) => section.lessons, {

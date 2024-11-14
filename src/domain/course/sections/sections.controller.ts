@@ -6,16 +6,12 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
-  UseInterceptors,
-  UploadedFile,
 } from '@nestjs/common';
-import { RequestUser } from 'auth/interfaces/request-user.interface';
 import { IdDto } from 'common';
 import { ApiTags } from '@nestjs/swagger';
 import { SectionsService } from './sections.service';
-import { CreateSectionDto } from 'course/dto/create-section.dto';
-import { UpdateSectionDto } from 'course/dto/update-section.dto';
+import { CreateSectionDto } from 'course/sections/dto/create-section.dto';
+import { UpdateSectionDto } from 'course/sections/dto/update-section.dto';
 
 @ApiTags('sections')
 @Controller('sections')

@@ -19,6 +19,7 @@ import { SectionsRepository } from './sections/section.repository';
 import { SectionsSubscriber } from './subscribers/section.subscriber';
 import { CloudinaryModule } from 'cloudinary/cloudinary.module';
 import { SectionsController } from './sections/sections.controller';
+import { LessonsController } from './lessons/lessons.controller';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { SectionsController } from './sections/sections.controller';
     CloudinaryModule,
     DatabaseModule.forFeature([Course, User, Category, Section, Lesson]),
   ],
-  controllers: [CourseController, SectionsController],
+  controllers: [CourseController, SectionsController, LessonsController],
   providers: [
     CourseService,
     CourseRepository,

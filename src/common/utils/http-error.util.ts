@@ -21,6 +21,10 @@ export const HttpError = {
     status: HttpStatus.BAD_REQUEST,
     error: 'Bad Request',
   },
+  UNAUTHORIZED: {
+    status: HttpStatus.UNAUTHORIZED,
+    error: 'Unauthorized',
+  },
 } as const satisfies Record<string, IHttpError>;
 
 interface IHttpError {

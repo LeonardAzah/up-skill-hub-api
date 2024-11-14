@@ -10,6 +10,7 @@ export class FileSignatureValidator extends FileValidator {
   }
 
   isValid(file: Express.Multer.File) {
+    console.log(file.buffer);
     const fileSignatires = magicBytes(file.buffer).map((file) => file.mime);
     if (!fileSignatires.length) return false;
 
