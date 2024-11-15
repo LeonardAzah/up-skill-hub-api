@@ -8,6 +8,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   UpdateDateColumn,
 } from 'typeorm';
@@ -47,8 +49,12 @@ export class User extends AbstractEntity<User> {
   @OneToMany(() => AuthRefreshToken, (refreshToken) => refreshToken.user)
   refreshTokens: AuthRefreshToken[];
 
-  @OneToMany(() => Course, (course) => course.user)
-  course: Course[];
+  @OneToMany(() => Course, (course) => course.owner)
+  ownedCourses: Course[];
+
+  @ManyToMany(() => Course, (course) => course.enrolledStudents)
+  @JoinTable({ name: 'enrolled_courses' })
+  enrolledCourses: Course[];
 
   get isDeleted() {
     return !!this.deletedAt;

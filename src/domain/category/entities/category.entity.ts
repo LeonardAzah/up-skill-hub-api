@@ -1,27 +1,29 @@
 import { AbstractEntity } from 'common';
+import { Course } from 'course/entities/course.entity';
 import {
-  Entity,
   Column,
-  ManyToOne,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
+  UpdateDateColumn,
 } from 'typeorm';
-import { Course } from './course.entity';
 
 @Entity()
 export class Category extends AbstractEntity<Category> {
   @Column()
   name: string;
 
-  @Column()
-  description: string;
-
   @ManyToOne(() => Category, (category) => category.children, {
     nullable: true,
     onDelete: 'SET NULL',
   })
+  @JoinColumn({ name: 'parentId' })
   parent?: Category;
+
+  @Column({ nullable: true })
+  parentId?: string;
 
   @ManyToOne(() => Category, (category) => category.courses, {
     onDelete: 'SET NULL',

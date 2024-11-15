@@ -1,16 +1,18 @@
-import { AbstractEntity } from 'common';
-import { Level } from 'course/enums/level.enum';
-import { Status } from 'course/enums/status.enum';
+import { Category } from 'category/entities/category.entity';
+import { AbstractEntity, CourseLevel, Features, Language } from 'common';
+import { CourseStatus } from 'course/enums/status.enum';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
+  OneToMany,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from 'users/entities/user.entity';
-import { Category } from './category.entity';
+import { Section } from './section.entity';
 
 @Entity()
 export class Course extends AbstractEntity<Course> {
@@ -20,57 +22,69 @@ export class Course extends AbstractEntity<Course> {
   @Column()
   description: string;
 
-  @Column()
-  language: string;
+  @Column({
+    type: 'enum',
+    enum: Language,
+    enumName: 'language',
+  })
+  language: Language;
+
+  // @Column({ nullable: true })
+  // duration?: string;
 
   @Column({
     type: 'enum',
-    enum: Level,
-    enumName: 'course_level',
+    enum: CourseLevel,
+    enumName: 'course_levels',
+    nullable: true,
   })
-  level: Level[];
+  course_level?: CourseLevel[];
 
-  @Column()
-  price: number;
+  @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
+  price?: number;
 
-  @Column()
-  discountPrice: number;
+  @Column({ type: 'float', nullable: true })
+  ratings: number;
+
+  @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
+  discountPrice?: number;
 
   @ManyToOne(() => Category, (category) => category.courses, {
     onDelete: 'SET NULL',
     nullable: true,
   })
+  @JoinColumn({ name: 'categoryId' })
   category: Category;
 
-  @ManyToOne(() => User, (user) => user.course, {
+  @ManyToOne(() => User, (user) => user.ownedCourses, {
     onDelete: 'CASCADE',
     nullable: false,
   })
-  @JoinColumn({ name: 'instructorId' })
-  user: User;
+  owner: User;
 
-  @Column()
-  instructorId: string;
+  @OneToMany(() => Section, (section) => section.course, {
+    cascade: true,
+    nullable: true,
+    eager: true,
+  })
+  sections?: Section[];
 
-  @Column()
-  categoryId: string;
+  @ManyToMany(() => User, (user) => user.enrolledCourses, { nullable: true })
+  enrolledStudents?: User[];
 
-  @Column()
-  thumbnailUrl: string;
+  @Column({ nullable: true })
+  thumbnailUrl?: string;
 
-  @Column()
-  promoVideoUrl: string;
-
-  @Column()
-  seoMetadata: JSON;
+  @Column({ nullable: true })
+  promoVideoUrl?: string;
 
   @Column({
     type: 'enum',
-    enum: Status,
-    enumName: 'status_enum',
-    default: Status.DRAFT,
+    enum: CourseStatus,
+    enumName: 'CourseStatus_enum',
+    default: CourseStatus.DRAFT,
   })
-  status: Status;
+  status: CourseStatus;
 
   @CreateDateColumn()
   createdAt: Date;

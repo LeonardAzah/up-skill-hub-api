@@ -13,7 +13,9 @@ import { Role } from 'auth/roles/enums/roles.enum';
 import { LoginDto } from 'auth/dto/login.dto';
 import { HashingService } from 'common/hashing/hashing.service';
 import { RequestUser } from 'auth/interfaces/request-user.interface';
-import { compareUserId } from 'auth/utils/authorization.util';
+import { compareUserId } from 'common/utils/authorization.util';
+import { ConfigService } from '@nestjs/config';
+import { CloudinaryService } from 'cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +23,8 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly paginationService: PaginationService,
     private readonly hashingService: HashingService,
+    private readonly configService: ConfigService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -104,5 +108,13 @@ export class UsersService {
     }
 
     return this.usersRepository.recover(user);
+  }
+
+  async uploadProfile(id: string, file: Express.Multer.File) {
+    const folder = this.configService.get<string>('CLOUDINARY_FOLDER_PROFILES');
+    const user = await this.usersRepository.findOne({ where: { id } });
+    const imageData = await this.cloudinaryService.uploadFile(file, folder);
+    user.profile = imageData.secure_url;
+    return this.usersRepository.create(user);
   }
 }
