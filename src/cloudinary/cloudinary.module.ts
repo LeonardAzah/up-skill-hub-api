@@ -11,7 +11,7 @@ import { ConfigModule } from 'common';
   providers: [
     CloudinaryService,
     CloudinaryProvider,
-    { provide: APP_FILTER, useClass: FilesExceptionFilter },
+    // { provide: APP_FILTER, useClass: FilesExceptionFilter },
   ],
   exports: [CloudinaryService, CloudinaryProvider],
 })

@@ -1,4 +1,4 @@
-export enum Status {
+export enum CourseStatus {
   DRAFT = 'Draft',
   PENDING = 'Pending',
   PUBLISHED = 'Published',

@@ -1,6 +1,6 @@
 import { Category } from 'category/entities/category.entity';
 import { AbstractEntity, CourseLevel, Features, Language } from 'common';
-import { Status } from 'course/enums/status.enum';
+import { CourseStatus } from 'course/enums/status.enum';
 import {
   Column,
   CreateDateColumn,
@@ -80,11 +80,11 @@ export class Course extends AbstractEntity<Course> {
 
   @Column({
     type: 'enum',
-    enum: Status,
-    enumName: 'status_enum',
-    default: Status.DRAFT,
+    enum: CourseStatus,
+    enumName: 'CourseStatus_enum',
+    default: CourseStatus.DRAFT,
   })
-  status: Status;
+  status: CourseStatus;
 
   @CreateDateColumn()
   createdAt: Date;

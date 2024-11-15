@@ -24,6 +24,8 @@ import { createParseFilePipe } from 'cloudinary/files/utils/file-validation.util
 import { Roles } from 'auth/decorators/roles.decorator';
 import { Role } from 'auth/roles/enums/roles.enum';
 import { Public } from 'auth/decorators/public.decorator';
+import { CourseStatus } from './enums/status.enum';
+import { CourseStatusDto } from './dto/status.dto';
 
 @ApiTags('courses')
 @Controller('courses')
@@ -45,9 +47,22 @@ export class CourseController {
     return this.courseService.findAll(coursesQueryDto);
   }
 
+  @Roles(Role.ADMIN)
+  @Get('pending-courses')
+  async getPendingCourses(@Query() paginationDto: PaginationDto) {
+    return this.courseService.getPendingCourses(paginationDto);
+  }
+
+  @Roles(Role.STUDENT)
   @Get('learning')
   async getEnrolledCourses(@CurrentUser() { id }: RequestUser) {
     return this.courseService.getEnrolledCourses(id);
+  }
+
+  @Roles(Role.TEACHER)
+  @Get('my-courses')
+  async getOwnedCourses(@CurrentUser() { id }: RequestUser) {
+    return this.courseService.getOwnedCourses(id);
   }
 
   @Roles(Role.STUDENT)
@@ -70,6 +85,21 @@ export class CourseController {
     thumbnail: Express.Multer.File,
   ) {
     return this.courseService.uploadThumbnail(id, thumbnail);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch(':id/status')
+  async updateCourseStatus(
+    @Param() { id }: IdDto,
+    @Body() status: CourseStatusDto,
+  ) {
+    return this.courseService.updateStatus(id, status);
+  }
+
+  @Roles(Role.TEACHER)
+  @Patch(':id/review')
+  async submitForReview(@Param() { id }: IdDto) {
+    return this.courseService.submitForReview(id);
   }
 
   @Public()

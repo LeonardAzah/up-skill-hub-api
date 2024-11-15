@@ -6,6 +6,7 @@ import { LoggerModule } from 'common';
 import { CourseModule } from './domain/course/course.module';
 import { CategoryModule } from './domain/category/category.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { PaymentsModule } from './domain/payments/payments.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     CourseModule,
     CategoryModule,
     CloudinaryModule,
+    PaymentsModule,
   ],
   controllers: [],
   providers: [],
