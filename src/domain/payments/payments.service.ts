@@ -1,26 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { ConfigService } from '@nestjs/config';
+import Stripe from 'stripe';
 
 @Injectable()
 export class PaymentsService {
-  create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
-  }
+  private readonly stripe = new Stripe(this.configService.get('STRIPE_KEY'));
 
-  findAll() {
-    return `This action returns all payments`;
-  }
+  constructor(private readonly configService: ConfigService) {}
 
-  findOne(id: number) {
-    return `This action returns a #${id} payment`;
-  }
-
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
+  async create({ amount, email }: CreatePaymentDto) {
+    const paymentIntent = await this.stripe.paymentIntents.create({
+      amount: amount * 100,
+      currency: 'usd',
+      payment_method: 'pm_card_visa',
+    });
+    return paymentIntent;
   }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CourseRepository } from './course.repository';
@@ -12,15 +12,14 @@ import {
   PaginationService,
 } from 'common';
 import { CoursesQueryDto } from './dto/course-query.dto';
-import { EntityManager, MoreThanOrEqual } from 'typeorm';
+import { MoreThanOrEqual } from 'typeorm';
 import { RequestUser } from 'auth/interfaces/request-user.interface';
 import { compareUserId } from 'common/utils/authorization.util';
 import { ConfigService } from '@nestjs/config';
 import { CloudinaryService } from 'cloudinary/cloudinary.service';
-import { SectionsRepository } from './sections/section.repository';
-import { use } from 'passport';
 import { CourseStatus } from './enums/status.enum';
 import { CourseStatusDto } from './dto/status.dto';
+import { User } from 'users/entities/user.entity';
 
 @Injectable()
 export class CourseService {
@@ -61,6 +60,7 @@ export class CourseService {
         ratings: ratings ? MoreThanOrEqual(ratings) : undefined,
         category,
       },
+
       // order: { [sort]: order },
       skip: offset,
       take: limit,
@@ -124,24 +124,20 @@ export class CourseService {
     return user.ownedCourses;
   }
 
-  async enrollToCourse(id: string, user: RequestUser) {
-    const currentUser = await this.usersRepository.findOne({
-      where: { id: user.id },
-    });
+  async purchaseCourse() {}
 
+  async enrollToCourse(id: string, user: User) {
     const course = await this.courseRepository.findOne({
       where: { id },
       relations: { enrolledStudents: true },
     });
 
     const isEnrolled = course.enrolledStudents.some(
-      (student) => student.id === currentUser.id,
+      (student) => student.id === user.id,
     );
-    if (isEnrolled) {
-      throw new BadRequestException('User already enrolled');
-    }
+    if (isEnrolled) return;
 
-    course.enrolledStudents.push(currentUser);
+    course.enrolledStudents.push(user);
     await this.courseRepository.create(course);
     const { enrolledStudents, ...courseWithoutStudents } = course;
     return courseWithoutStudents;
