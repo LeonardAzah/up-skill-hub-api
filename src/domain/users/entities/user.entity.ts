@@ -1,5 +1,6 @@
 import { AuthRefreshToken } from 'auth/entities/auth-refresh-token.entity';
 import { Role } from 'auth/roles/enums/roles.enum';
+import { Cart } from 'cart/entities/cart.entity';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
 import { Course } from 'course/entities/course.entity';
@@ -55,6 +56,9 @@ export class User extends AbstractEntity<User> {
   @ManyToMany(() => Course, (course) => course.enrolledStudents)
   @JoinTable({ name: 'enrolled_courses' })
   enrolledCourses: Course[];
+
+  @OneToMany(() => Cart, (cart) => cart.user)
+  cart: Cart;
 
   get isDeleted() {
     return !!this.deletedAt;

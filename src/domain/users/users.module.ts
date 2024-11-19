@@ -9,6 +9,7 @@ import { UsersSubscriber } from './subscribers/users.subscribers';
 import { Category } from 'category/entities/category.entity';
 import { Course } from 'course/entities/course.entity';
 import { CloudinaryModule } from 'cloudinary/cloudinary.module';
+import { Cart } from 'cart/entities/cart.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { CloudinaryModule } from 'cloudinary/cloudinary.module';
     CommonModule,
     CloudinaryModule,
     ConfigModule,
-    DatabaseModule.forFeature([User, Category, Course]),
+    DatabaseModule.forFeature([User, Category, Course, Cart]),
   ],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository, UsersSubscriber],

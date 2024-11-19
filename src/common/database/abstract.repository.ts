@@ -29,6 +29,19 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     return entity;
   }
 
+  async findOneOrCreate(
+    options: FindOneOptions<T>,
+    factory: () => T,
+  ): Promise<T> {
+    let entity = await this.entityRepository.findOne(options);
+    if (!entity) {
+      this.logger.log('Entity not found, creating a new one');
+      entity = factory();
+      await this.create(entity);
+    }
+    return entity;
+  }
+
   async findByEmail(where: FindOptionsWhere<T>): Promise<T> {
     return this.entityRepository.findOne({ where });
   }

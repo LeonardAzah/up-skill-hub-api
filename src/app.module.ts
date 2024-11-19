@@ -7,6 +7,7 @@ import { CourseModule } from './domain/course/course.module';
 import { CategoryModule } from './domain/category/category.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PaymentsModule } from './domain/payments/payments.module';
+import { CartModule } from './domain/cart/cart.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PaymentsModule } from './domain/payments/payments.module';
     CategoryModule,
     CloudinaryModule,
     PaymentsModule,
+    CartModule,
   ],
   controllers: [],
   providers: [],
