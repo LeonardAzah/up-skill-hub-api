@@ -124,8 +124,6 @@ export class CourseService {
     return user.ownedCourses;
   }
 
-  async purchaseCourse() {}
-
   async enrollToCourse(id: string, user: User) {
     const course = await this.courseRepository.findOne({
       where: { id },
@@ -140,6 +138,7 @@ export class CourseService {
     course.enrolledStudents.push(user);
     await this.courseRepository.create(course);
     const { enrolledStudents, ...courseWithoutStudents } = course;
+
     return courseWithoutStudents;
   }
 

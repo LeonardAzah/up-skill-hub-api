@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CartsRepository } from './cart.repository';
 import { CartItemsRepository } from './cart-item.repository';
 import { CourseRepository } from 'course/course.repository';
@@ -46,28 +51,20 @@ export class CartService {
 
   async getCart(id: string) {
     const user = await this.usersRepository.findOne({ where: { id } });
-    let cart = await this.cartsRepository.findOne({
-      where: { user: { id } },
-      relations: ['items', 'items.course'],
-    });
-
-    if (!cart) {
-      cart = new Cart({ user, items: [], total: 0 });
-      await this.cartsRepository.create(cart);
-    }
-    return cart;
+    return this.cartsRepository.findOneOrCreate(
+      { where: { user: { id } }, relations: ['items', 'items.course'] },
+      () => new Cart({ user, items: [], total: 0 }),
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cart`;
-  }
-
-  async removeFromCart(id: string, courseId: string) {
+  async removeFromCart(id: string, itemId: string) {
     const cart = await this.getCart(id);
 
-    const cartItemIndex = cart.items.findIndex(
-      (item) => item.course.id === courseId,
-    );
+    const cartItemIndex = cart.items.findIndex((item) => item.id === itemId);
+
+    if (cartItemIndex === -1) {
+      throw new NotFoundException('Course not in cart');
+    }
 
     const cartItem = cart.items[cartItemIndex];
 
@@ -80,31 +77,41 @@ export class CartService {
     return cart;
   }
 
-  async clearCart(id: string): Promise<Cart> {
+  async purchaseCourse(
+    { id, email }: RequestUser,
+    createPaymentDto: CreatePaymentDto,
+  ) {
     const cart = await this.getCart(id);
 
-    cart.items.forEach(async (item) => {
-      await this.cartItemsRepository.remove(item);
-    });
+    if (!cart || cart.items.length === 0) {
+      throw new BadRequestException(
+        'Cart is empty. Cannot proceed with purchase.',
+      );
+    }
 
-    cart.items = [];
-    cart.total = 0;
-
-    await this.cartsRepository.create(cart);
-    return cart;
-  }
-
-  async purchaseCourse(id: string, createPaymentDto: CreatePaymentDto) {
-    const cart = await this.getCart(id);
+    const user = await this.usersRepository.findOne({ where: { id } });
     const amount = cart.total;
     const paymentIntent = await this.paymentService.create({
       amount,
+      email: email,
       ...createPaymentDto,
     });
-    if (paymentIntent.status === 'succeeded') {
-      cart.items.forEach(async (item) => {
-        await this.coursesService.enrollToCourse(item.course.id, cart.user);
-      });
+    if (paymentIntent.status === 'requires_confirmation') {
+      try {
+        await Promise.all(
+          cart.items.map((item) => {
+            this.coursesService.enrollToCourse(item.course.id, user);
+          }),
+        );
+
+        cart.items = [];
+        cart.total = 0;
+        await this.cartsRepository.create(cart);
+      } catch (error) {
+        throw new InternalServerErrorException(
+          'Failed to enroll courses after payment.',
+        );
+      }
     }
 
     return paymentIntent;

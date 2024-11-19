@@ -20,20 +20,15 @@ export class CartController {
 
   @Post('purchase')
   async PurchseCourse(
-    @CurrentUser() { id }: RequestUser,
+    @CurrentUser() user: RequestUser,
     createPaymentDto: CreatePaymentDto,
   ) {
-    return this.cartService.purchaseCourse(id, createPaymentDto);
+    return this.cartService.purchaseCourse(user, createPaymentDto);
   }
 
   @Get()
   async getCart(@CurrentUser() { id }: RequestUser) {
     return this.cartService.getCart(id);
-  }
-
-  @Post('clear')
-  async clearCart(@CurrentUser() { id }: RequestUser) {
-    return this.cartService.clearCart(id);
   }
 
   @Delete(':id')
