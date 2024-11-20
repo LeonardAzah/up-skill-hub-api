@@ -15,7 +15,7 @@ import { RequestUser } from 'auth/interfaces/request-user.interface';
 import { PaymentsService } from 'payments/payments.service';
 import { CreateChargeDto } from 'payments/dto/create-charge.dto';
 import { CreatePaymentDto } from 'payments/dto/create-payment.dto';
-import { NotificationsService } from 'notifications/notifications.service';
+import { NotificationsService } from '../../../notifications/notifications.service';
 import { number } from 'joi';
 
 @Injectable()
@@ -78,7 +78,7 @@ export class CartService {
     const cartItem = cart.items[cartItemIndex];
 
     cart.items.splice(cartItemIndex, 1);
-    cart.total -= cartItem.price;
+    cart.total = Number(cart.total) - Number(cartItem.price);
 
     await this.cartItemsRepository.remove(cartItem);
     await this.cartsRepository.create(cart);

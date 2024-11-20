@@ -8,7 +8,7 @@ import { CategoryModule } from './domain/category/category.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PaymentsModule } from './domain/payments/payments.module';
 import { CartModule } from './domain/cart/cart.module';
-import { NotificationsModule } from './domain/notifications/notifications.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [

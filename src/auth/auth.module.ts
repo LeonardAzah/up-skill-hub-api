@@ -18,12 +18,14 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuthTokensRepository } from './authToken.repository';
 import { AuthRefreshToken } from './entities/auth-refresh-token.entity';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { NotificationsModule } from '../../notifications/notifications.module';
 
 @Module({
   imports: [
     UsersModule,
     ConfigModule,
     DatabaseModule,
+    NotificationsModule,
     DatabaseModule.forFeature([AuthRefreshToken]),
 
     CommonModule,

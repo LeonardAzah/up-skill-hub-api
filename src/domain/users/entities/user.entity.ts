@@ -30,6 +30,12 @@ export class User extends AbstractEntity<User> {
   @Column({ nullable: true })
   profile: string;
 
+  @Column({ nullable: true })
+  otpVerification: string;
+
+  @Column({ nullable: true })
+  otpVerificationExpirationDate: Date;
+
   @Column({
     type: 'enum',
     enum: Role,

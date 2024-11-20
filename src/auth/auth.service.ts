@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { HashingService } from 'common/hashing/hashing.service';
 import { Response } from 'express';
 import { User } from 'users/entities/user.entity';
@@ -10,6 +14,9 @@ import { AuthTokensRepository } from './authToken.repository';
 import { RefreshUser } from './interfaces/rerefresh-user.interface';
 import { GoogleRegisterDto } from './dto/google-register.dto';
 import { Role } from './roles/enums/roles.enum';
+import { NotificationsService } from '../../notifications/notifications.service';
+import { generate } from 'otp-generator';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +25,7 @@ export class AuthService {
     private readonly authTokensRepository: AuthTokensRepository,
     private readonly hashingService: HashingService,
     private readonly authTokenService: AuthTokenService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async verifyuser(email: string, password: string) {
@@ -117,6 +125,59 @@ export class AuthService {
 
   async getProfile(id: string) {
     return this.usersRepository.findOne({ where: { id } });
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.usersRepository.findByEmail({ email });
+
+    if (user) {
+      const otp = generate(4, {
+        upperCaseAlphabets: false,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+      });
+      const tenMinutes = 1000 * 60 * 10;
+      const otpVerificationExpirationDate = new Date(Date.now() + tenMinutes);
+
+      user.otpVerification = await this.hashingService.hash(otp);
+      user.otpVerificationExpirationDate = otpVerificationExpirationDate;
+      await this.usersRepository.create(user);
+
+      await this.notificationsService.notifyEmail(
+        email,
+        `Use this code to reset your password: ${otp}`,
+        'Forgot Password',
+      );
+    }
+
+    return 'Please check your email for reset password code';
+  }
+
+  async resetPassword({ email, password, otp }: ResetPasswordDto) {
+    const user = await this.usersRepository.findByEmail({ email });
+    if (user) {
+      const otpValid = await this.hashingService.compare(
+        otp,
+        user.otpVerification,
+      );
+      const otpExpired = user.otpVerificationExpirationDate <= new Date();
+
+      if (!otpValid) {
+        throw new BadRequestException('Invalid OTP');
+      }
+
+      if (otpExpired) {
+        throw new BadRequestException(
+          'OTP has expired. Please request a new one.',
+        );
+      }
+
+      user.password = password;
+      user.otpVerification = null;
+      user.otpVerificationExpirationDate = null;
+      await this.usersRepository.create(user);
+    }
+    return 'Your password has been successfully reset.';
   }
 
   private createRequestUser(user: User) {
