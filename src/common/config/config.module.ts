@@ -28,6 +28,8 @@ import * as joi from 'joi';
         CLOUDINARY_API_SECRET: joi.string().required(),
         CLOUDINARY_API_KEY: joi.string().required(),
         STRIPE_KEY: joi.string().required(),
+        SMTP_USER: joi.string().required(),
+        GOOGLE_OAUTH_REFRESH_TOKEN: joi.string().required(),
       }),
     }),
   ],

@@ -64,12 +64,7 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { id } });
   }
 
-  async update(
-    id: string,
-    updateUserDto: UpdateUserDto,
-    currentUser: RequestUser,
-  ) {
-    await compareUserId(currentUser, id);
+  async update(updateUserDto: UpdateUserDto, { id }: RequestUser) {
     return this.usersRepository.findOneAndUpdate({ id }, updateUserDto);
   }
 

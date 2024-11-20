@@ -8,7 +8,10 @@ export class Cart extends AbstractEntity<Cart> {
   @ManyToOne(() => User, (user) => user.cart, { onDelete: 'CASCADE' })
   user: User;
 
-  @OneToMany(() => CartItem, (cartItem) => cartItem.cart, { cascade: true })
+  @OneToMany(() => CartItem, (cartItem) => cartItem.cart, {
+    eager: true,
+    cascade: true,
+  })
   items: CartItem[];
 
   @Column({ type: 'decimal', default: 0 })

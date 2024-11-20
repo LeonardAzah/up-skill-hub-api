@@ -65,15 +65,6 @@ export class CourseController {
     return this.courseService.getOwnedCourses(id);
   }
 
-  // @Roles(Role.STUDENT)
-  // @Post('enroll/:id')
-  // async enrollToCourse(
-  //   @Param() { id }: IdDto,
-  //   @CurrentUser() user: RequestUser,
-  // ) {
-  //   return this.courseService.enrollToCourse(id, user);
-  // }
-
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: FileSchema })
   @Roles(Role.TEACHER)

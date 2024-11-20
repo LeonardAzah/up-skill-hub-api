@@ -8,7 +8,7 @@ export class CartItem extends AbstractEntity<CartItem> {
   @ManyToOne(() => Cart, (cart) => cart.items, { onDelete: 'CASCADE' })
   cart: Cart;
 
-  @ManyToOne(() => Course, { eager: true })
+  @ManyToOne(() => Course, (course) => course.id, { eager: true })
   course: Course;
 
   @Column({ type: 'decimal', default: 0 })

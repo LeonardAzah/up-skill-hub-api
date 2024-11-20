@@ -73,18 +73,18 @@ export class UsersController {
     return this.usersService.recover(loginDto);
   }
 
+  @Roles(Role.ADMIN, Role.TEACHER)
   @Get(':id')
   async findOne(@Param() { id }: IdDto) {
     return this.usersService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch()
   async update(
-    @Param() { id }: IdDto,
     @Body() updateUserDto: UpdateUserDto,
     @CurrentUser() user: RequestUser,
   ) {
-    return this.usersService.update(id, updateUserDto, user);
+    return this.usersService.update(updateUserDto, user);
   }
 
   @Delete(':id')

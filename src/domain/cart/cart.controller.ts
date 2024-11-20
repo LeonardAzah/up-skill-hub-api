@@ -34,7 +34,7 @@ export class CartController {
   @Delete(':id')
   async removeFromCart(
     @CurrentUser() user: RequestUser,
-    @Param() { id }: IdDto,
+    @Body() { id }: IdDto,
   ) {
     return this.cartService.removeFromCart(user.id, id);
   }

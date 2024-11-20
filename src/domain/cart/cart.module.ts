@@ -12,6 +12,7 @@ import { CartItem } from './entities/cart-item.entity';
 import { UsersModule } from 'users/users.module';
 import { CourseModule } from 'course/course.module';
 import { PaymentsModule } from 'payments/payments.module';
+import { NotificationsModule } from 'notifications/notifications.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PaymentsModule } from 'payments/payments.module';
     UsersModule,
     CourseModule,
     PaymentsModule,
+    NotificationsModule,
     DatabaseModule.forFeature([Cart, CartItem, Course, User]),
   ],
   controllers: [CartController],

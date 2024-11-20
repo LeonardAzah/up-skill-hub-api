@@ -15,6 +15,8 @@ import { RequestUser } from 'auth/interfaces/request-user.interface';
 import { PaymentsService } from 'payments/payments.service';
 import { CreateChargeDto } from 'payments/dto/create-charge.dto';
 import { CreatePaymentDto } from 'payments/dto/create-payment.dto';
+import { NotificationsService } from 'notifications/notifications.service';
+import { number } from 'joi';
 
 @Injectable()
 export class CartService {
@@ -25,6 +27,7 @@ export class CartService {
     private readonly coursesService: CourseService,
     private readonly paymentService: PaymentsService,
     private readonly usersRepository: UsersRepository,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async addToCart(id: string, courseId: string) {
@@ -37,24 +40,30 @@ export class CartService {
     const existingItem = cart.items.find(
       (item) => item.course.id === course.id,
     );
-    if (existingItem) return;
+    if (existingItem) return cart;
 
-    const cartItem = new CartItem({ cart, course, price: course.price });
+    const cartItem = new CartItem({
+      cart,
+      course,
+      price: Number(course.price),
+    });
+    cart.items.push(cartItem);
 
     await this.cartItemsRepository.create(cartItem);
 
-    cart.items.push(cartItem);
-    cart.total += course.price;
+    cart.total = Number(cart.total) + Number(cartItem.price);
 
     return this.cartsRepository.create(cart);
   }
 
   async getCart(id: string) {
     const user = await this.usersRepository.findOne({ where: { id } });
-    return this.cartsRepository.findOneOrCreate(
+    const cart = await this.cartsRepository.findOneOrCreate(
       { where: { user: { id } }, relations: ['items', 'items.course'] },
       () => new Cart({ user, items: [], total: 0 }),
     );
+
+    return cart;
   }
 
   async removeFromCart(id: string, itemId: string) {
@@ -63,7 +72,7 @@ export class CartService {
     const cartItemIndex = cart.items.findIndex((item) => item.id === itemId);
 
     if (cartItemIndex === -1) {
-      throw new NotFoundException('Course not in cart');
+      throw new NotFoundException('Item not in cart');
     }
 
     const cartItem = cart.items[cartItemIndex];
@@ -91,6 +100,7 @@ export class CartService {
 
     const user = await this.usersRepository.findOne({ where: { id } });
     const amount = cart.total;
+
     const paymentIntent = await this.paymentService.create({
       amount,
       email: email,
@@ -98,10 +108,27 @@ export class CartService {
     });
     if (paymentIntent.status === 'requires_confirmation') {
       try {
-        await Promise.all(
-          cart.items.map((item) => {
+        const purchaseData: string[] = await Promise.all(
+          cart.items.map(async (item) => {
             this.coursesService.enrollToCourse(item.course.id, user);
+            return `
+            Course name: ${item.course.title}
+            Course price: ${item.price}
+            Enrolled By: ${user.name}`;
           }),
+        );
+
+        const text = `
+        Confirmation
+        
+        ${purchaseData.join('\n\n')}
+        
+        Total: ${cart.total}`;
+
+        await this.notificationsService.notifyEmail(
+          email,
+          text,
+          'Course purchase Confirmation',
         );
 
         cart.items = [];
