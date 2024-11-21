@@ -37,7 +37,7 @@ export class CartService {
 
     const cart = await this.getCart(id);
 
-    const existingItem = cart.items.find(
+    const existingItem = cart.items?.find(
       (item) => item.course.id === course.id,
     );
     if (existingItem) return cart;
@@ -49,11 +49,14 @@ export class CartService {
     });
     cart.items.push(cartItem);
 
-    await this.cartItemsRepository.create(cartItem);
-
     cart.total = Number(cart.total) + Number(cartItem.price);
 
-    return this.cartsRepository.create(cart);
+    await this.cartsRepository.create(cart);
+
+    return this.cartsRepository.findOne({
+      where: { id: cart.id },
+      relations: ['items', 'items.course'],
+    });
   }
 
   async getCart(id: string) {

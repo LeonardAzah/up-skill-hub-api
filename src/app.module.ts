@@ -9,6 +9,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PaymentsModule } from './domain/payments/payments.module';
 import { CartModule } from './domain/cart/cart.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { ReviewsModule } from './domain/reviews/reviews.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     PaymentsModule,
     CartModule,
     NotificationsModule,
+    ReviewsModule,
   ],
   controllers: [],
   providers: [],

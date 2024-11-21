@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { User } from 'users/entities/user.entity';
 import { Section } from './section.entity';
+import { Review } from 'reviews/entities/review.entity';
 
 @Entity()
 export class Course extends AbstractEntity<Course> {
@@ -28,9 +29,6 @@ export class Course extends AbstractEntity<Course> {
     enumName: 'language',
   })
   language: Language;
-
-  // @Column({ nullable: true })
-  // duration?: string;
 
   @Column({
     type: 'enum',
@@ -68,6 +66,10 @@ export class Course extends AbstractEntity<Course> {
     eager: true,
   })
   sections?: Section[];
+  @OneToMany(() => Review, (review) => review.course, {
+    cascade: true,
+  })
+  reviews: Review[];
 
   @ManyToMany(() => User, (user) => user.enrolledCourses, { nullable: true })
   enrolledStudents?: User[];

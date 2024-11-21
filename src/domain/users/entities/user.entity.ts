@@ -4,14 +4,17 @@ import { Cart } from 'cart/entities/cart.entity';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
 import { Course } from 'course/entities/course.entity';
+import { Review } from 'reviews/entities/review.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -63,8 +66,11 @@ export class User extends AbstractEntity<User> {
   @JoinTable({ name: 'enrolled_courses' })
   enrolledCourses: Course[];
 
-  @OneToMany(() => Cart, (cart) => cart.user)
+  @OneToOne(() => Cart, (cart) => cart.user, { cascade: true })
   cart: Cart;
+
+  @OneToMany(() => Review, (review) => review.user)
+  reviews: Review[];
 
   get isDeleted() {
     return !!this.deletedAt;
