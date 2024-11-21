@@ -11,7 +11,7 @@ import { UsersRepository } from 'users/users.reposisoty';
 import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { CourseService } from 'course/course.service';
-import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { RequestUser } from 'common/interfaces/request-user.interface';
 import { PaymentsService } from 'payments/payments.service';
 import { CreateChargeDto } from 'payments/dto/create-charge.dto';
 import { CreatePaymentDto } from 'payments/dto/create-payment.dto';

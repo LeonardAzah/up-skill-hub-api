@@ -1,5 +1,5 @@
 import { AuthRefreshToken } from 'auth/entities/auth-refresh-token.entity';
-import { Role } from 'auth/roles/enums/roles.enum';
+import { Role } from 'common/enums/roles.enum';
 import { Cart } from 'cart/entities/cart.entity';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
@@ -10,7 +10,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,

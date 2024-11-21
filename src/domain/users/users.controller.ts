@@ -16,12 +16,15 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { IdDto, PaginationDto } from 'common';
-import { Public } from 'auth/decorators/public.decorator';
-import { Role } from 'auth/roles/enums/roles.enum';
-import { Roles } from 'auth/decorators/roles.decorator';
-import { CurrentUser } from 'auth/decorators/current-user.decorator';
-import { RequestUser } from 'auth/interfaces/request-user.interface';
+import {
+  CurrentUser,
+  IdDto,
+  PaginationDto,
+  RequestUser,
+  Role,
+  Roles,
+} from 'common';
+import { Public } from 'common/Decorators/public.decorator';
 import { LoginDto } from 'auth/dto/login.dto';
 import { RemoveDto } from 'common/dto/remove.dto';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';

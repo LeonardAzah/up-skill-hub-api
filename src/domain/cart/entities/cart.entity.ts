@@ -23,6 +23,6 @@ export class Cart extends AbstractEntity<Cart> {
   })
   items: CartItem[];
 
-  @Column({ type: 'decimal', default: 0 })
+  @Column({ type: 'decimal', default: 1 })
   total: number;
 }

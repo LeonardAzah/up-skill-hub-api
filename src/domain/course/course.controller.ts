@@ -13,17 +13,16 @@ import {
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { CurrentUser } from 'auth/decorators/current-user.decorator';
-import { RequestUser } from 'auth/interfaces/request-user.interface';
-import { IdDto, PaginationDto } from 'common';
+import { CurrentUser } from 'common/Decorators/current-user.decorator';
+import { RequestUser } from 'common/interfaces/request-user.interface';
+import { IdDto, PaginationDto, Roles } from 'common';
 import { CoursesQueryDto } from './dto/course-query.dto';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileSchema } from 'cloudinary/files/swagger/schemas/file.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createParseFilePipe } from 'cloudinary/files/utils/file-validation.util';
-import { Roles } from 'auth/decorators/roles.decorator';
-import { Role } from 'auth/roles/enums/roles.enum';
-import { Public } from 'auth/decorators/public.decorator';
+import { Role } from 'common/enums/roles.enum';
+import { Public } from 'common/Decorators/public.decorator';
 import { CourseStatus } from './enums/status.enum';
 import { CourseStatusDto } from './dto/status.dto';
 

@@ -12,10 +12,10 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { CurrentUser } from 'auth/decorators/current-user.decorator';
+import { CurrentUser } from 'common/Decorators/current-user.decorator';
 import { Response, Request } from 'express';
-import { RequestUser } from './interfaces/request-user.interface';
-import { Public } from './decorators/public.decorator';
+import { RequestUser } from '../common/interfaces/request-user.interface';
+import { Public } from '../common/Decorators/public.decorator';
 import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';

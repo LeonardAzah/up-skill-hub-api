@@ -13,7 +13,7 @@ import {
 } from 'common';
 import { CoursesQueryDto } from './dto/course-query.dto';
 import { MoreThanOrEqual } from 'typeorm';
-import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { RequestUser } from 'common/interfaces/request-user.interface';
 import { compareUserId } from 'common/utils/authorization.util';
 import { ConfigService } from '@nestjs/config';
 import { CloudinaryService } from 'cloudinary/cloudinary.service';

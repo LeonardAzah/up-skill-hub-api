@@ -11,9 +11,8 @@ import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { Roles } from 'auth/decorators/roles.decorator';
-import { Role } from 'auth/roles/enums/roles.enum';
-import { IdDto } from 'common';
+import { Role } from 'common/enums/roles.enum';
+import { IdDto, Roles } from 'common';
 
 @ApiTags('category')
 @Roles(Role.ADMIN)

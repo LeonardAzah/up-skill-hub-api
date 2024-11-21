@@ -1,6 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
-import { RequestUser } from '../../auth/interfaces/request-user.interface';
-import { Role } from '../../auth/roles/enums/roles.enum';
+import { RequestUser } from '../interfaces/request-user.interface';
+import { Role } from '../enums/roles.enum';
 
 export const compareUserId = async (
   currentUser: RequestUser,
