@@ -33,7 +33,7 @@ export class CourseService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
   async create(id: string, createCourseDto: CreateCourseDto) {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOneById({ where: { id } });
 
     const course = new Course({ owner: user, ...createCourseDto });
     return this.courseRepository.create(course);
@@ -46,7 +46,7 @@ export class CourseService {
     const offset = this.paginationService.calculateOffset(limit, page);
     let category;
     if (categoryId) {
-      category = await this.categoryRepository.findOne({
+      category = await this.categoryRepository.findOneById({
         where: { id: categoryId },
       });
     }
@@ -69,8 +69,8 @@ export class CourseService {
     return { data: result.data, meta };
   }
 
-  async findOne(id: string) {
-    return this.courseRepository.findOne({
+  async findOneById(id: string) {
+    return this.courseRepository.findOneById({
       where: { id },
       relations: ['sections', 'sections.lessons'],
     });
@@ -81,7 +81,7 @@ export class CourseService {
     updateCourseDto: UpdateCourseDto,
     currentUser: RequestUser,
   ) {
-    const course = await this.courseRepository.findOne({
+    const course = await this.courseRepository.findOneById({
       where: { id },
       relations: { owner: true },
     });
@@ -91,13 +91,13 @@ export class CourseService {
   }
 
   async remove(id: string) {
-    const course = await this.courseRepository.findOne({ where: { id } });
+    const course = await this.courseRepository.findOneById({ where: { id } });
     return this.courseRepository.remove(course);
   }
 
   async uploadThumbnail(id: string, thumbnail: Express.Multer.File) {
     const folder = this.configService.get<string>('CLOUDINARY_FOLDER_COURSE');
-    const course = await this.courseRepository.findOne({ where: { id } });
+    const course = await this.courseRepository.findOneById({ where: { id } });
     const imageData = await this.cloudinaryService.uploadFile(
       thumbnail,
       folder,
@@ -107,7 +107,7 @@ export class CourseService {
   }
 
   async getEnrolledCourses(id: string) {
-    const user = await this.usersRepository.findOne({
+    const user = await this.usersRepository.findOneById({
       where: { id },
       relations: ['enrolledCourses', 'enrolledCourses.sections.lessons'],
     });
@@ -116,7 +116,7 @@ export class CourseService {
   }
 
   async getOwnedCourses(id: string) {
-    const user = await this.usersRepository.findOne({
+    const user = await this.usersRepository.findOneById({
       where: { id },
       relations: { ownedCourses: true },
     });
@@ -125,7 +125,7 @@ export class CourseService {
   }
 
   async enrollToCourse(id: string, user: User) {
-    const course = await this.courseRepository.findOne({
+    const course = await this.courseRepository.findOneById({
       where: { id },
       relations: { enrolledStudents: true },
     });

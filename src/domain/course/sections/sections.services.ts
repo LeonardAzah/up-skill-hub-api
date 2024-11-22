@@ -13,7 +13,7 @@ export class SectionsService {
   ) {}
 
   async create(id: string, createSection: CreateSectionDto) {
-    const course = await this.courseRepository.findOne({ where: { id } });
+    const course = await this.courseRepository.findOneById({ where: { id } });
 
     const section = new Section({ course, ...createSection });
     return this.sectionsRepository.create(section);
@@ -24,7 +24,9 @@ export class SectionsService {
   }
 
   async remove(id: string) {
-    const section = await this.sectionsRepository.findOne({ where: { id } });
+    const section = await this.sectionsRepository.findOneById({
+      where: { id },
+    });
 
     return this.sectionsRepository.remove(section);
   }

@@ -15,7 +15,7 @@ import { RequestUser } from 'common/interfaces/request-user.interface';
 import { PaymentsService } from 'payments/payments.service';
 import { CreateChargeDto } from 'payments/dto/create-charge.dto';
 import { CreatePaymentDto } from 'payments/dto/create-payment.dto';
-import { NotificationsService } from '../../../notifications/notifications.service';
+import { NotificationsService } from '../../notifications/notifications.service';
 import { number } from 'joi';
 
 @Injectable()
@@ -31,7 +31,7 @@ export class CartService {
   ) {}
 
   async addToCart(id: string, courseId: string) {
-    const course = await this.coursesRepository.findOne({
+    const course = await this.coursesRepository.findOneById({
       where: { id: courseId },
     });
 
@@ -53,14 +53,14 @@ export class CartService {
 
     await this.cartsRepository.create(cart);
 
-    return this.cartsRepository.findOne({
+    return this.cartsRepository.findOneById({
       where: { id: cart.id },
       relations: ['items', 'items.course'],
     });
   }
 
   async getCart(id: string) {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOneById({ where: { id } });
     const cart = await this.cartsRepository.findOneOrCreate(
       { where: { user: { id } }, relations: ['items', 'items.course'] },
       () => new Cart({ user, items: [], total: 0 }),
@@ -101,7 +101,7 @@ export class CartService {
       );
     }
 
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOneById({ where: { id } });
     const amount = cart.total;
 
     const paymentIntent = await this.paymentService.create({

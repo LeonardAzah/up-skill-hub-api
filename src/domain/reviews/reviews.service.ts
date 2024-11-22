@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { ReviewsRepository } from './reviews.repository';
 import { Review } from './entities/review.entity';
 import { UsersRepository } from 'users/users.reposisoty';
 import { CourseRepository } from 'course/course.repository';
-import {
-  DefaultPageSize,
-  FilteringService,
-  PaginationDto,
-  PaginationService,
-} from 'common';
+import { DefaultPageSize, FilteringService, PaginationService } from 'common';
 import { ReviewQueryDto } from './dto/review-query.dto';
+import { LessThan, MoreThanOrEqual } from 'typeorm';
 
 @Injectable()
 export class ReviewsService {
@@ -23,37 +23,50 @@ export class ReviewsService {
     private readonly filteringService: FilteringService,
   ) {}
   async create(userId: string, createReviewDto: CreateReviewDto) {
-    const user = await this.usersRepository.findOne({
+    const user = await this.usersRepository.findOneById({
       where: { id: userId },
     });
 
     const { courseId, ...reviewData } = createReviewDto;
 
-    const course = await this.coursesRepository.findOne({
+    const course = await this.coursesRepository.findOneById({
       where: { id: courseId },
+      relations: { enrolledStudents: true },
     });
+
+    const isStudentEnrolled = course.enrolledStudents.some(
+      (std) => std.id === user.id,
+    );
+    if (!isStudentEnrolled) {
+      throw new ForbiddenException('User not enrolled to course');
+    }
+
     const review = new Review({ ...reviewData, user, course });
     return this.reviewsRepository.create(review);
   }
 
   async findAll(id: string, reviewQueryDto: ReviewQueryDto) {
-    const { page, q } = reviewQueryDto;
+    const { page, q, ratings } = reviewQueryDto;
 
     const limit = reviewQueryDto.limit ?? DefaultPageSize.REVIEW;
     const offset = this.paginationService.calculateOffset(limit, page);
-    const course = await this.coursesRepository.findOne({ where: { id } });
+
     const result = await this.reviewsRepository.find({
       where: {
-        course: { id: course.id },
+        course: { id },
         comment: this.filteringService.constains(q),
+        ratings: ratings
+          ? MoreThanOrEqual(ratings) && LessThan(ratings + 1)
+          : undefined,
       },
       relations: ['user'],
       select: {
         id: true,
-        rating: true,
+        ratings: true,
         comment: true,
         user: {
           name: true,
+          profile: true,
         },
       },
       skip: offset,
@@ -65,15 +78,37 @@ export class ReviewsService {
     return { data: result.data, meta };
   }
 
-  async findOne(id: number) {
-    return `This action returns a #${id} review`;
+  async findOneById(id: string, courseId: string) {
+    return this.reviewsRepository.findOneById({
+      where: {
+        course: { id: courseId },
+        user: { id },
+      },
+    });
   }
 
-  async update(id: number, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
+  async update(id: string, createReviewDto: CreateReviewDto) {
+    const { courseId, ratings, comment } = createReviewDto;
+
+    const review = await this.reviewsRepository.findOneById({
+      where: {
+        course: { id: courseId },
+        user: { id },
+      },
+    });
+
+    review.ratings = ratings;
+    review.comment = comment;
+    return this.reviewsRepository.create(review);
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} review`;
+  async remove(id: string, courseId: string) {
+    const review = await this.reviewsRepository.findOneById({
+      where: {
+        course: { id: courseId },
+        user: { id },
+      },
+    });
+    return this.reviewsRepository.remove(review);
   }
 }

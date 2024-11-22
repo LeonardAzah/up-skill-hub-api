@@ -60,8 +60,8 @@ export class UsersService {
     return { data: result.data, meta };
   }
 
-  async findOne(id: string) {
-    return this.usersRepository.findOne({ where: { id } });
+  async findOneById(id: string) {
+    return this.usersRepository.findOneById({ where: { id } });
   }
 
   async update(updateUserDto: UpdateUserDto, { id }: RequestUser) {
@@ -75,7 +75,7 @@ export class UsersService {
         throw new ForbiddenException('Forbidden resource');
       }
     }
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOneById({ where: { id } });
     return soft
       ? this.usersRepository.softRemove(user)
       : this.usersRepository.remove(user);
@@ -83,7 +83,7 @@ export class UsersService {
 
   async recover(loginDto: LoginDto) {
     const { email, password } = loginDto;
-    const user = await this.usersRepository.findOne({
+    const user = await this.usersRepository.findOneById({
       where: { email },
       withDeleted: true,
     });
@@ -107,7 +107,7 @@ export class UsersService {
 
   async uploadProfile(id: string, file: Express.Multer.File) {
     const folder = this.configService.get<string>('CLOUDINARY_FOLDER_PROFILES');
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOneById({ where: { id } });
     const imageData = await this.cloudinaryService.uploadFile(file, folder);
     user.profile = imageData.secure_url;
     return this.usersRepository.create(user);

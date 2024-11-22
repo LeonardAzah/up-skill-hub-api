@@ -12,7 +12,7 @@ import { CartItem } from './entities/cart-item.entity';
 import { UsersModule } from 'users/users.module';
 import { CourseModule } from 'course/course.module';
 import { PaymentsModule } from 'payments/payments.module';
-import { NotificationsModule } from '../../../notifications/notifications.module';
+import { NotificationsModule } from '../../notifications/notifications.module';
 
 @Module({
   imports: [

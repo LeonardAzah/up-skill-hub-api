@@ -14,7 +14,7 @@ import { AuthTokensRepository } from './authToken.repository';
 import { RefreshUser } from './interfaces/rerefresh-user.interface';
 import { GoogleRegisterDto } from './dto/google-register.dto';
 import { Role } from '../common/enums/roles.enum';
-import { NotificationsService } from '../../notifications/notifications.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { generate } from 'otp-generator';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
@@ -29,7 +29,7 @@ export class AuthService {
   ) {}
 
   async verifyuser(email: string, password: string) {
-    const user = await this.usersRepository.findOne({ where: { email } });
+    const user = await this.usersRepository.findOneById({ where: { email } });
     const passwordIsValid = await this.hashingService.compare(
       password,
       user.password,
@@ -67,7 +67,7 @@ export class AuthService {
   }
 
   async validateJwt(payload: JwtPayload) {
-    const user = await this.usersRepository.findOne({
+    const user = await this.usersRepository.findOneById({
       where: { id: payload.sub },
     });
     if (!user) {
@@ -90,7 +90,7 @@ export class AuthService {
   }
 
   async validateRefreshJwt(refreshToken: string, payload: JwtPayload) {
-    const user = await this.usersRepository.findOne({
+    const user = await this.usersRepository.findOneById({
       where: { id: payload.sub },
     });
 
@@ -124,7 +124,7 @@ export class AuthService {
   }
 
   async getProfile(id: string) {
-    return this.usersRepository.findOne({ where: { id } });
+    return this.usersRepository.findOneById({ where: { id } });
   }
 
   async forgotPassword(email: string) {

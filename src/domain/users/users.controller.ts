@@ -78,8 +78,8 @@ export class UsersController {
 
   @Roles(Role.ADMIN, Role.TEACHER)
   @Get(':id')
-  async findOne(@Param() { id }: IdDto) {
-    return this.usersService.findOne(id);
+  async findOneById(@Param() { id }: IdDto) {
+    return this.usersService.findOneById(id);
   }
 
   @Patch()

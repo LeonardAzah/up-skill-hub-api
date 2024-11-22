@@ -9,7 +9,7 @@ export class CreateReviewDto {
   @Min(1)
   @Max(5)
   @Transform(({ value }) => Math.round(value * 10) / 10)
-  rating: number;
+  ratings: number;
 
   @IsUUID()
   courseId: string;

@@ -6,5 +6,5 @@ export class ReviewFilterDto extends NameFilterDto {
   @IsNumber()
   @Min(1)
   @Max(5)
-  stars?: number;
+  ratings?: number;
 }

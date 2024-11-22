@@ -36,7 +36,7 @@ export class LessonsSubscriber implements EntitySubscriberInterface<Lesson> {
   private async setSection(event: InsertEvent<Lesson> | UpdateEvent<Lesson>) {
     const sectionId = event.entity['sectionId'];
 
-    const course = await this.sectionsRepository.findOne({
+    const course = await this.sectionsRepository.findOneById({
       where: { id: sectionId },
     });
     event.entity['course'] = course;

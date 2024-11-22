@@ -30,8 +30,8 @@ export class CategoryController {
   }
 
   @Get(':id')
-  async findOne(@Param() { id }: IdDto) {
-    return this.categoryService.findOne(id);
+  async findOneById(@Param() { id }: IdDto) {
+    return this.categoryService.findOneById(id);
   }
 
   @Patch(':id')
