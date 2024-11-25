@@ -36,6 +36,7 @@
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
     "express": "^4.21.1",
+    "firebase-admin": "^13.0.1",
     "joi": "^17.13.3",
     "magic-bytes.js": "^1.10.0",
     "multer": "^1.4.5-lts.1",

@@ -1,11 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import * as firebase from 'firebase-admin';
+import { sendNotificationDTO } from './dto/send-notification.dto';
 
 @Injectable()
 export class NotificationsService {
+  protected readonly logger = new Logger(NotificationsService.name);
+
   constructor(private readonly configService: ConfigService) {}
 
+  async sendPush(notification: sendNotificationDTO) {
+    try {
+      await firebase
+        .messaging()
+        .send({
+          notification: {
+            title: notification.title,
+            body: notification.body,
+          },
+          token: notification.deviceId,
+          data: {},
+          android: {
+            priority: 'high',
+            notification: {
+              sound: 'default',
+              channelId: 'default',
+            },
+          },
+          apns: {
+            headers: {
+              'apns-priority': '10',
+            },
+            payload: {
+              aps: {
+                contentAvailable: true,
+                sound: 'default',
+              },
+            },
+          },
+        })
+        .catch((error: any) => {
+          this.logger.error(error);
+        });
+    } catch (error) {
+      this.logger.error(error);
+
+      return error;
+    }
+  }
   private readonly transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
