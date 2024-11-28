@@ -20,6 +20,7 @@ import { CloudinaryService } from 'cloudinary/cloudinary.service';
 import { CourseStatus } from './enums/status.enum';
 import { CourseStatusDto } from './dto/status.dto';
 import { User } from 'users/entities/user.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class CourseService {
@@ -31,6 +32,7 @@ export class CourseService {
     private readonly filteringService: FilteringService,
     private readonly configService: ConfigService,
     private readonly cloudinaryService: CloudinaryService,
+    private eventEmitter: EventEmitter2,
   ) {}
   async create(id: string, createCourseDto: CreateCourseDto) {
     const user = await this.usersRepository.findOneById({ where: { id } });

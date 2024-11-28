@@ -11,6 +11,7 @@ import { QueryingModule } from './querying/querying.module';
 import { LoggerModule } from './logger/logger.module';
 import { BcryptService } from './hashing/bcrypt.service';
 import { HashingService } from './hashing/hashing.service';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   providers: [
@@ -24,7 +25,13 @@ import { HashingService } from './hashing/hashing.service';
       useClass: ClassSerializerInterceptor,
     },
   ],
-  imports: [ConfigModule, DatabaseModule, QueryingModule, LoggerModule],
+  imports: [
+    ConfigModule,
+    DatabaseModule,
+    QueryingModule,
+    LoggerModule,
+    EventEmitterModule.forRoot(),
+  ],
   exports: [HashingService],
 })
 export class CommonModule {}

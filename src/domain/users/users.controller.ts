@@ -31,6 +31,7 @@ import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createParseFilePipe } from 'cloudinary/files/utils/file-validation.util';
 import { FileSchema } from 'cloudinary/files/swagger/schemas/file.schema';
+import { FCMDto } from './dto/update-fcmtoken.dto';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
@@ -74,6 +75,15 @@ export class UsersController {
   @Patch('recover')
   recover(@Body() loginDto: LoginDto) {
     return this.usersService.recover(loginDto);
+  }
+
+  @Patch('/fcm-token')
+  async updateFcmToken(
+    @CurrentUser() { id }: RequestUser,
+    @Body() fcmToken: FCMDto,
+  ) {
+    await this.usersService.updateFcmToken(id, fcmToken);
+    return { msg: 'FCM token updated successfully' };
   }
 
   @Roles(Role.ADMIN, Role.TEACHER)

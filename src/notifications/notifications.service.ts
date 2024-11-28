@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import * as firebase from 'firebase-admin';
-import { sendNotificationDTO } from './dto/send-notification.dto';
+import { SendNotificationDTO } from './dto/send-notification.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -10,16 +10,16 @@ export class NotificationsService {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async sendPush(notification: sendNotificationDTO) {
+  async sendPushNotification({ token, title, body }: SendNotificationDTO) {
     try {
       await firebase
         .messaging()
         .send({
           notification: {
-            title: notification.title,
-            body: notification.body,
+            title,
+            body,
           },
-          token: notification.deviceId,
+          token,
           data: {},
           android: {
             priority: 'high',
@@ -46,9 +46,10 @@ export class NotificationsService {
     } catch (error) {
       this.logger.error(error);
 
-      return error;
+      throw new Error('Unable to send push notification');
     }
   }
+
   private readonly transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {

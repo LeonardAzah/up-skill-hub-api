@@ -16,6 +16,9 @@ import { RequestUser } from 'common/interfaces/request-user.interface';
 import { compareUserId } from 'common/utils/authorization.util';
 import { ConfigService } from '@nestjs/config';
 import { CloudinaryService } from 'cloudinary/cloudinary.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { FCMDto } from './dto/update-fcmtoken.dto';
+import { EmitterPayload } from './interfaces/user-emitter-payload.interface';
 
 @Injectable()
 export class UsersService {
@@ -25,11 +28,21 @@ export class UsersService {
     private readonly hashingService: HashingService,
     private readonly configService: ConfigService,
     private readonly cloudinaryService: CloudinaryService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
     const user = new User(createUserDto);
-    return this.usersRepository.create(user);
+    await this.usersRepository.create(user);
+
+    const payload: EmitterPayload = {
+      name: user.name,
+      token: user.fcmToken,
+    };
+
+    this.eventEmitter.emit('user.registered', payload);
+
+    return user;
   }
 
   async createTeacher(createUserDto: CreateUserDto) {
@@ -66,6 +79,12 @@ export class UsersService {
 
   async update(updateUserDto: UpdateUserDto, { id }: RequestUser) {
     return this.usersRepository.findOneAndUpdate({ id }, updateUserDto);
+  }
+
+  async updateFcmToken(id: string, { fcmToken }: FCMDto) {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    user.fcmToken = fcmToken;
+    return this.usersRepository.create(user);
   }
 
   async remove(id: string, soft: boolean, currentUser: RequestUser) {

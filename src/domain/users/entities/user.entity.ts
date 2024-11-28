@@ -36,6 +36,9 @@ export class User extends AbstractEntity<User> {
   otpVerification: string;
 
   @Column({ nullable: true })
+  fcmToken: string;
+
+  @Column({ nullable: true })
   otpVerificationExpirationDate: Date;
 
   @Column({

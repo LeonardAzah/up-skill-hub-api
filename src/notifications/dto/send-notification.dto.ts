@@ -1,9 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-export class sendNotificationDTO {
-  @ApiProperty()
+import { IsString } from 'class-validator';
+export class SendNotificationDTO {
+  @IsString()
   title: string;
-  @ApiProperty()
+
+  @IsString()
   body: string;
-  @ApiProperty()
-  deviceId: string;
+
+  @IsString()
+  token: string;
 }

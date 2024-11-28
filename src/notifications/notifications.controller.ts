@@ -1,13 +1,15 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { sendNotificationDTO } from './dto/send-notification.dto';
+import { SendNotificationDTO } from './dto/send-notification.dto';
+import { Public } from 'common';
 
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationService: NotificationsService) {}
 
+  @Public()
   @Post()
-  sendNotification(@Body() pushNotification: sendNotificationDTO) {
-    this.notificationService.sendPush(pushNotification);
+  sendNotification(@Body() pushNotification: SendNotificationDTO) {
+    this.notificationService.sendPushNotification(pushNotification);
   }
 }
