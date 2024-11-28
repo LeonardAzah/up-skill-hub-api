@@ -35,12 +35,9 @@ export class UsersService {
     const user = new User(createUserDto);
     await this.usersRepository.create(user);
 
-    const payload: EmitterPayload = {
-      name: user.name,
-      token: user.fcmToken,
-    };
+    const payload = this.createEmitterPayload(user);
 
-    this.eventEmitter.emit('user.registered', payload);
+    this.eventEmitter.emitAsync('user.registered', payload);
 
     return user;
   }
@@ -50,7 +47,13 @@ export class UsersService {
       ...createUserDto,
       role: Role.TEACHER,
     });
-    return this.usersRepository.create(user);
+    await this.usersRepository.create(user);
+
+    const payload = this.createEmitterPayload(user);
+
+    this.eventEmitter.emitAsync('user.registered', payload);
+
+    return user;
   }
 
   async createAdmin(createUserDto: CreateUserDto) {
@@ -58,7 +61,11 @@ export class UsersService {
       ...createUserDto,
       role: Role.ADMIN,
     });
-    return this.usersRepository.create(user);
+    await this.usersRepository.create(user);
+    const payload = this.createEmitterPayload(user);
+
+    this.eventEmitter.emitAsync('user.registered', payload);
+    return user;
   }
 
   async findAll(paginationDto: PaginationDto) {
@@ -120,6 +127,8 @@ export class UsersService {
     if (!user.isDeleted) {
       throw new ConflictException('User not deleted');
     }
+    const payload = this.createEmitterPayload(user);
+    this.eventEmitter.emitAsync('count.recovered', payload);
 
     return this.usersRepository.recover(user);
   }
@@ -130,5 +139,11 @@ export class UsersService {
     const imageData = await this.cloudinaryService.uploadFile(file, folder);
     user.profile = imageData.secure_url;
     return this.usersRepository.create(user);
+  }
+
+  private createEmitterPayload(user: User) {
+    const { name, fcmToken } = user;
+    const emitterPayload: EmitterPayload = { name, token: fcmToken };
+    return emitterPayload;
   }
 }

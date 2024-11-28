@@ -12,6 +12,8 @@ import { CourseRepository } from 'course/course.repository';
 import { DefaultPageSize, FilteringService, PaginationService } from 'common';
 import { ReviewQueryDto } from './dto/review-query.dto';
 import { LessThan, MoreThanOrEqual } from 'typeorm';
+import { ReviewEmitterPayload } from './interfaces/review-emitter-payload.interfaces';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ReviewsService {
@@ -21,6 +23,7 @@ export class ReviewsService {
     private readonly coursesRepository: CourseRepository,
     private readonly paginationService: PaginationService,
     private readonly filteringService: FilteringService,
+    private eventEmitter: EventEmitter2,
   ) {}
   async create(userId: string, createReviewDto: CreateReviewDto) {
     const user = await this.usersRepository.findOneById({
@@ -42,7 +45,19 @@ export class ReviewsService {
     }
 
     const review = new Review({ ...reviewData, user, course });
-    return this.reviewsRepository.create(review);
+
+    await this.reviewsRepository.create(review);
+
+    const payload: ReviewEmitterPayload = {
+      name: user.name,
+      courseTitle: course.title,
+      token: course.owner.fcmToken,
+      ratings: review.ratings,
+    };
+
+    this.eventEmitter.emitAsync('student.reviewed', payload);
+
+    return review;
   }
 
   async findAll(id: string, reviewQueryDto: ReviewQueryDto) {
@@ -99,6 +114,15 @@ export class ReviewsService {
 
     review.ratings = ratings;
     review.comment = comment;
+
+    const payload: ReviewEmitterPayload = {
+      name: review.user.name,
+      courseTitle: review.course.title,
+      token: review.course.owner.fcmToken,
+      ratings: review.ratings,
+    };
+
+    this.eventEmitter.emitAsync('student.reviewed.updated', payload);
     return this.reviewsRepository.create(review);
   }
 

@@ -21,6 +21,8 @@ import { CloudinaryModule } from 'cloudinary/cloudinary.module';
 import { SectionsController } from './sections/sections.controller';
 import { LessonsController } from './lessons/lessons.controller';
 import { CartModule } from 'cart/cart.module';
+import { NotificationsModule } from 'notifications/notifications.module';
+import { CourseEventListernerService } from './course-event-listeerner.service';
 
 @Module({
   imports: [
@@ -31,6 +33,7 @@ import { CartModule } from 'cart/cart.module';
     CommonModule,
     ConfigModule,
     CloudinaryModule,
+    NotificationsModule,
     DatabaseModule.forFeature([Course, User, Category, Section, Lesson]),
   ],
   controllers: [CourseController, SectionsController, LessonsController],
@@ -43,6 +46,7 @@ import { CartModule } from 'cart/cart.module';
     LessonsRepository,
     SectionsService,
     LessonsService,
+    CourseEventListernerService,
   ],
   exports: [CourseService, CourseRepository, SectionsService, LessonsService],
 })

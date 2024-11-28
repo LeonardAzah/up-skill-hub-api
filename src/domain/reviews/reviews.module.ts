@@ -9,6 +9,8 @@ import { Review } from './entities/review.entity';
 import { User } from 'users/entities/user.entity';
 import { Course } from 'course/entities/course.entity';
 import { ReviewsRepository } from './reviews.repository';
+import { ReviewEventListernerService } from './review-event-listerner.service';
+import { NotificationsModule } from 'notifications/notifications.module';
 
 @Module({
   imports: [
@@ -16,10 +18,11 @@ import { ReviewsRepository } from './reviews.repository';
     QueryingModule,
     UsersModule,
     CourseModule,
+    NotificationsModule,
     DatabaseModule,
     DatabaseModule.forFeature([Review, User, Course]),
   ],
   controllers: [ReviewsController],
-  providers: [ReviewsService, ReviewsRepository],
+  providers: [ReviewsService, ReviewsRepository, ReviewEventListernerService],
 })
 export class ReviewsModule {}

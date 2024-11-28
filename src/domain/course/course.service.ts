@@ -21,6 +21,7 @@ import { CourseStatus } from './enums/status.enum';
 import { CourseStatusDto } from './dto/status.dto';
 import { User } from 'users/entities/user.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CourseEmitterPayload } from './interfaces/course-emitter-payload.interfaces';
 
 @Injectable()
 export class CourseService {
@@ -38,6 +39,14 @@ export class CourseService {
     const user = await this.usersRepository.findOneById({ where: { id } });
 
     const course = new Course({ owner: user, ...createCourseDto });
+
+    const payload: CourseEmitterPayload = {
+      token: user.fcmToken,
+      courseTitle: course.title,
+    };
+
+    this.eventEmitter.emitAsync('course.created', payload);
+
     return this.courseRepository.create(course);
   }
 
@@ -94,6 +103,14 @@ export class CourseService {
 
   async remove(id: string) {
     const course = await this.courseRepository.findOneById({ where: { id } });
+
+    const payload: CourseEmitterPayload = {
+      token: course.owner.fcmToken,
+      courseTitle: course.title,
+    };
+
+    this.eventEmitter.emitAsync('course.removed', payload);
+
     return this.courseRepository.remove(course);
   }
 
@@ -105,7 +122,15 @@ export class CourseService {
       folder,
     );
     course.thumbnailUrl = imageData.secure_url;
-    return this.courseRepository.create(course);
+    await this.courseRepository.create(course);
+
+    const payload: CourseEmitterPayload = {
+      token: course.owner.fcmToken,
+      courseTitle: course.title,
+    };
+
+    this.eventEmitter.emitAsync('course.thumbnail.updated', payload);
+    return course;
   }
 
   async getEnrolledCourses(id: string) {
@@ -139,13 +164,39 @@ export class CourseService {
 
     course.enrolledStudents.push(user);
     await this.courseRepository.create(course);
+
+    const payloadToInstrctors: CourseEmitterPayload = {
+      token: course.owner.fcmToken,
+      courseTitle: course.title,
+      name: user.name,
+    };
+
+    const payloadToStudent: CourseEmitterPayload = {
+      token: user.fcmToken,
+      courseTitle: course.title,
+    };
+
+    this.eventEmitter.emitAsync('student.enrolled', payloadToInstrctors);
+
+    this.eventEmitter.emitAsync('course.enrolled', payloadToStudent);
+
     const { enrolledStudents, ...courseWithoutStudents } = course;
 
     return courseWithoutStudents;
   }
 
   async updateStatus(id: string, { status }: CourseStatusDto) {
-    return this.courseRepository.findOneAndUpdate({ id }, { status });
+    const course = await this.courseRepository.findOneAndUpdate(
+      { id },
+      { status },
+    );
+    const payload: CourseEmitterPayload = {
+      token: course.owner.fcmToken,
+      courseTitle: course.title,
+    };
+
+    this.eventEmitter.emitAsync('course.status.updated', payload);
+    return course;
   }
 
   async submitForReview(id: string) {
