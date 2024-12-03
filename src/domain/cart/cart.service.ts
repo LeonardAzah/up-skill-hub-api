@@ -13,10 +13,8 @@ import { CartItem } from './entities/cart-item.entity';
 import { CourseService } from 'course/course.service';
 import { RequestUser } from 'common/interfaces/request-user.interface';
 import { PaymentsService } from 'payments/payments.service';
-import { CreateChargeDto } from 'payments/dto/create-charge.dto';
-import { CreatePaymentDto } from 'payments/dto/create-payment.dto';
 import { NotificationsService } from '../../notifications/notifications.service';
-import { number } from 'joi';
+import { CreatePaymentDto } from 'payments/dto/create-payment.dto';
 
 @Injectable()
 export class CartService {
@@ -51,7 +49,7 @@ export class CartService {
 
     cart.total = Number(cart.total) + Number(cartItem.price);
 
-    await this.cartsRepository.create(cart);
+    await this.cartsRepository.save(cart);
 
     return this.cartsRepository.findOneById({
       where: { id: cart.id },
@@ -84,7 +82,7 @@ export class CartService {
     cart.total = Number(cart.total) - Number(cartItem.price);
 
     await this.cartItemsRepository.remove(cartItem);
-    await this.cartsRepository.create(cart);
+    await this.cartsRepository.save(cart);
 
     return cart;
   }
@@ -104,7 +102,7 @@ export class CartService {
     const user = await this.usersRepository.findOneById({ where: { id } });
     const amount = cart.total;
 
-    const paymentIntent = await this.paymentService.create({
+    const paymentIntent = await this.paymentService.save({
       amount,
       email: email,
       ...createPaymentDto,
@@ -136,7 +134,7 @@ export class CartService {
 
         cart.items = [];
         cart.total = 0;
-        await this.cartsRepository.create(cart);
+        await this.cartsRepository.save(cart);
       } catch (error) {
         throw new InternalServerErrorException(
           'Failed to enroll courses after payment.',

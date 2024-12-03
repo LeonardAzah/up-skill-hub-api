@@ -9,12 +9,8 @@ import {
   Query,
   UploadedFile,
   UseInterceptors,
-  ParseFilePipe,
-  MaxFileSizeValidator,
-  FileTypeValidator,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
   CurrentUser,
@@ -32,14 +28,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { createParseFilePipe } from 'cloudinary/files/utils/file-validation.util';
 import { FileSchema } from 'cloudinary/files/swagger/schemas/file.schema';
 import { FCMDto } from './dto/update-fcmtoken.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @Public()
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async save(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.save(createUserDto);
   }
 
   @ApiConsumes('multipart/form-data')

@@ -11,7 +11,6 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
-import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CurrentUser } from 'common/Decorators/current-user.decorator';
 import { RequestUser } from 'common/interfaces/request-user.interface';
@@ -25,6 +24,7 @@ import { Role } from 'common/enums/roles.enum';
 import { Public } from 'common/Decorators/public.decorator';
 import { CourseStatus } from './enums/status.enum';
 import { CourseStatusDto } from './dto/status.dto';
+import { CreateCourseDto } from './dto/create-course.dto';
 
 @ApiTags('courses')
 @Controller('courses')
@@ -33,11 +33,11 @@ export class CourseController {
 
   @Roles(Role.TEACHER)
   @Post()
-  async create(
+  async save(
     @Body() createCourseDto: CreateCourseDto,
     @CurrentUser() { id }: RequestUser,
   ) {
-    return this.courseService.create(id, createCourseDto);
+    return this.courseService.save(id, createCourseDto);
   }
 
   @Public()

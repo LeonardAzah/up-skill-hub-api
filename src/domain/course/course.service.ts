@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CourseRepository } from './course.repository';
 import { Course } from './entities/course.entity';
@@ -22,6 +21,7 @@ import { CourseStatusDto } from './dto/status.dto';
 import { User } from 'users/entities/user.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CourseEmitterPayload } from './interfaces/course-emitter-payload.interfaces';
+import { CreateCourseDto } from './dto/create-course.dto';
 
 @Injectable()
 export class CourseService {
@@ -35,7 +35,7 @@ export class CourseService {
     private readonly cloudinaryService: CloudinaryService,
     private eventEmitter: EventEmitter2,
   ) {}
-  async create(id: string, createCourseDto: CreateCourseDto) {
+  async save(id: string, createCourseDto: CreateCourseDto) {
     const user = await this.usersRepository.findOneById({ where: { id } });
 
     const course = new Course({ owner: user, ...createCourseDto });
@@ -47,7 +47,7 @@ export class CourseService {
 
     this.eventEmitter.emitAsync('course.created', payload);
 
-    return this.courseRepository.create(course);
+    return this.courseRepository.save(course);
   }
 
   async findAll(coursesQueryDto: CoursesQueryDto) {
@@ -122,7 +122,7 @@ export class CourseService {
       folder,
     );
     course.thumbnailUrl = imageData.secure_url;
-    await this.courseRepository.create(course);
+    await this.courseRepository.save(course);
 
     const payload: CourseEmitterPayload = {
       token: course.owner.fcmToken,
@@ -163,7 +163,7 @@ export class CourseService {
     if (isEnrolled) return;
 
     course.enrolledStudents.push(user);
-    await this.courseRepository.create(course);
+    await this.courseRepository.save(course);
 
     const payloadToInstrctors: CourseEmitterPayload = {
       token: course.owner.fcmToken,

@@ -49,7 +49,7 @@ export class AuthTokenService {
       userId: payload.sub,
     });
 
-    await this.authTokensRepository.create(newTokenEntry);
+    await this.authTokensRepository.save(newTokenEntry);
 
     return newRefreshToken;
   }

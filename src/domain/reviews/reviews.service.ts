@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
-import { CreateReviewDto } from './dto/create-review.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ReviewsRepository } from './reviews.repository';
 import { Review } from './entities/review.entity';
 import { UsersRepository } from 'users/users.reposisoty';
@@ -14,6 +8,7 @@ import { ReviewQueryDto } from './dto/review-query.dto';
 import { LessThan, MoreThanOrEqual } from 'typeorm';
 import { ReviewEmitterPayload } from './interfaces/review-emitter-payload.interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CreateReviewDto } from './dto/create-review.dto';
 
 @Injectable()
 export class ReviewsService {
@@ -25,7 +20,7 @@ export class ReviewsService {
     private readonly filteringService: FilteringService,
     private eventEmitter: EventEmitter2,
   ) {}
-  async create(userId: string, createReviewDto: CreateReviewDto) {
+  async save(userId: string, createReviewDto: CreateReviewDto) {
     const user = await this.usersRepository.findOneById({
       where: { id: userId },
     });
@@ -46,7 +41,7 @@ export class ReviewsService {
 
     const review = new Review({ ...reviewData, user, course });
 
-    await this.reviewsRepository.create(review);
+    await this.reviewsRepository.save(review);
 
     const payload: ReviewEmitterPayload = {
       name: user.name,
@@ -123,7 +118,7 @@ export class ReviewsService {
     };
 
     this.eventEmitter.emitAsync('student.reviewed.updated', payload);
-    return this.reviewsRepository.create(review);
+    return this.reviewsRepository.save(review);
   }
 
   async remove(id: string, courseId: string) {

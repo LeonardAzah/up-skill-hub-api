@@ -116,7 +116,7 @@ export class AuthService {
         ...googleUser,
         role: Role.STUDENT,
       });
-      await this.usersRepository.create(user);
+      await this.usersRepository.save(user);
     }
     const requestUser = this.createRequestUser(user);
     await this.login(requestUser, response);
@@ -141,7 +141,7 @@ export class AuthService {
 
       user.otpVerification = await this.hashingService.hash(otp);
       user.otpVerificationExpirationDate = otpVerificationExpirationDate;
-      await this.usersRepository.create(user);
+      await this.usersRepository.save(user);
 
       await this.notificationsService.notifyEmail(
         email,
@@ -175,7 +175,7 @@ export class AuthService {
       user.password = password;
       user.otpVerification = null;
       user.otpVerificationExpirationDate = null;
-      await this.usersRepository.create(user);
+      await this.usersRepository.save(user);
     }
     return 'Your password has been successfully reset.';
   }

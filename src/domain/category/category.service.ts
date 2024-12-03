@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryRepository } from './category.repository';
 import { Category } from './entities/category.entity';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Injectable()
 export class CategoryService {
   constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  async create(createCategoryDto: CreateCategoryDto) {
+  async save(createCategoryDto: CreateCategoryDto) {
     const category = new Category(createCategoryDto);
 
     if (createCategoryDto.parentId) {
@@ -18,7 +18,7 @@ export class CategoryService {
       category.parent = parentCategory;
     }
 
-    return this.categoryRepository.create(category);
+    return this.categoryRepository.save(category);
   }
 
   async findAll() {

@@ -10,9 +10,9 @@ import {
 import { IdDto } from 'common';
 import { ApiTags } from '@nestjs/swagger';
 import { SectionsService } from './sections.service';
-import { CreateSectionDto } from 'course/sections/dto/create-section.dto';
 import { UpdateSectionDto } from 'course/sections/dto/update-section.dto';
 import { RemoveSectionDto } from './dto/remove-section.dto';
+import { CreateSectionDto } from './dto/create-section.dto';
 
 @ApiTags('sections')
 @Controller('sections')
@@ -20,11 +20,11 @@ export class SectionsController {
   constructor(private readonly sectionsService: SectionsService) {}
 
   @Post(':id')
-  async create(
+  async save(
     @Body() createSectionDto: CreateSectionDto,
     @Param() { id }: IdDto,
   ) {
-    return this.sectionsService.create(id, createSectionDto);
+    return this.sectionsService.save(id, createSectionDto);
   }
 
   @Get(':id')

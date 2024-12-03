@@ -16,7 +16,7 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     private readonly entityManager: EntityManager,
   ) {}
 
-  async create(entity: T): Promise<T> {
+  async save(entity: T): Promise<T> {
     return this.entityManager.save(entity);
   }
 
@@ -41,7 +41,7 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     if (!entity) {
       this.logger.log('Entity not found, creating a new one');
       entity = factory();
-      await this.create(entity);
+      await this.save(entity);
     }
     return entity;
   }

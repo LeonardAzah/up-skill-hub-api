@@ -8,11 +8,11 @@ import {
   Delete,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Role } from 'common/enums/roles.enum';
 import { IdDto, Roles } from 'common';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
 @ApiTags('category')
 @Roles(Role.ADMIN)
@@ -20,8 +20,8 @@ import { IdDto, Roles } from 'common';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
   @Post()
-  async create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoryService.create(createCategoryDto);
+  async save(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.categoryService.save(createCategoryDto);
   }
 
   @Get()

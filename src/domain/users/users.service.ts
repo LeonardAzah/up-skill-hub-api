@@ -4,7 +4,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.reposisoty';
 import { User } from './entities/user.entity';
@@ -19,6 +18,7 @@ import { CloudinaryService } from 'cloudinary/cloudinary.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FCMDto } from './dto/update-fcmtoken.dto';
 import { EmitterPayload } from './interfaces/user-emitter-payload.interface';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -31,9 +31,9 @@ export class UsersService {
     private eventEmitter: EventEmitter2,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async save(createUserDto: CreateUserDto) {
     const user = new User(createUserDto);
-    await this.usersRepository.create(user);
+    await this.usersRepository.save(user);
 
     const payload = this.createEmitterPayload(user);
 
@@ -47,7 +47,7 @@ export class UsersService {
       ...createUserDto,
       role: Role.TEACHER,
     });
-    await this.usersRepository.create(user);
+    await this.usersRepository.save(user);
 
     const payload = this.createEmitterPayload(user);
 
@@ -61,7 +61,7 @@ export class UsersService {
       ...createUserDto,
       role: Role.ADMIN,
     });
-    await this.usersRepository.create(user);
+    await this.usersRepository.save(user);
     const payload = this.createEmitterPayload(user);
 
     this.eventEmitter.emitAsync('user.registered', payload);
@@ -91,7 +91,7 @@ export class UsersService {
   async updateFcmToken(id: string, { fcmToken }: FCMDto) {
     const user = await this.usersRepository.findOne({ where: { id } });
     user.fcmToken = fcmToken;
-    return this.usersRepository.create(user);
+    return this.usersRepository.save(user);
   }
 
   async remove(id: string, soft: boolean, currentUser: RequestUser) {
@@ -138,7 +138,7 @@ export class UsersService {
     const user = await this.usersRepository.findOneById({ where: { id } });
     const imageData = await this.cloudinaryService.uploadFile(file, folder);
     user.profile = imageData.secure_url;
-    return this.usersRepository.create(user);
+    return this.usersRepository.save(user);
   }
 
   private createEmitterPayload(user: User) {
