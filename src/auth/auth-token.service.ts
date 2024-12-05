@@ -93,7 +93,7 @@ export class AuthTokenService {
     refreshToken: string,
     userId: string,
   ): Promise<boolean> {
-    const token = await this.authTokensRepository.findOneById({
+    const token = await this.authTokensRepository.findOne({
       where: {
         refreshToken,
         userId,

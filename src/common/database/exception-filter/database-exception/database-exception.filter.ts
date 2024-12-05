@@ -78,6 +78,7 @@ export class DatabaseExceptionFilter extends BaseExceptionFilter {
   } as const satisfies Record<string, string>;
 }
 
-function extractFromText(message: string, FIELD_NAME_REGEX: RegExp) {
-  throw new Error('Function not implemented.');
+function extractFromText(message: string, regex: RegExp): string | null {
+  const match = message.match(regex);
+  return match ? match[1] : null;
 }

@@ -37,7 +37,7 @@ export class CourseSubscriber implements EntitySubscriberInterface<Course> {
     const categoryId = event.entity['categoryId'];
 
     if (categoryId) {
-      const category = await this.categoryRepository.findOneById({
+      const category = await this.categoryRepository.findOne({
         where: { id: categoryId },
       });
       event.entity['category'] = category;

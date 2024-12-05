@@ -29,7 +29,7 @@ export class CartService {
   ) {}
 
   async addToCart(id: string, courseId: string) {
-    const course = await this.coursesRepository.findOneById({
+    const course = await this.coursesRepository.findOne({
       where: { id: courseId },
     });
 
@@ -51,14 +51,14 @@ export class CartService {
 
     await this.cartsRepository.save(cart);
 
-    return this.cartsRepository.findOneById({
+    return this.cartsRepository.findOne({
       where: { id: cart.id },
       relations: ['items', 'items.course'],
     });
   }
 
   async getCart(id: string) {
-    const user = await this.usersRepository.findOneById({ where: { id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
     const cart = await this.cartsRepository.findOneOrCreate(
       { where: { user: { id } }, relations: ['items', 'items.course'] },
       () => new Cart({ user, items: [], total: 0 }),
@@ -99,7 +99,7 @@ export class CartService {
       );
     }
 
-    const user = await this.usersRepository.findOneById({ where: { id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
     const amount = cart.total;
 
     const paymentIntent = await this.paymentService.save({

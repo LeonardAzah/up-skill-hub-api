@@ -35,13 +35,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @Public()
   @Post()
-  async save(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.save(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
   }
 
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: FileSchema })
-  @Post('profile')
+  @Patch('profile')
   @UseInterceptors(FileInterceptor('profile'))
   async uploadProfile(
     @CurrentUser() { id }: RequestUser,
@@ -85,8 +85,8 @@ export class UsersController {
 
   @Roles(Role.ADMIN, Role.TEACHER)
   @Get(':id')
-  async findOneById(@Param() { id }: IdDto) {
-    return this.usersService.findOneById(id);
+  async findOne(@Param() { id }: IdDto) {
+    return this.usersService.findOne(id);
   }
 
   @Patch()

@@ -26,6 +26,7 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { GoogleRegisterDto } from './dto/google-register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -53,6 +54,13 @@ export class AuthController {
   @Post('forgot-password')
   async forgotPassword(@Body() { email }: ForgotPasswordDto) {
     return this.authService.forgotPassword(email);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-otp')
+  async verifyOtp(@Body() { email, otp }: VerifyOtpDto) {
+    return this.authService.verifyOtp(email, otp);
   }
 
   @Public()

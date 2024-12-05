@@ -33,7 +33,16 @@ export class User extends AbstractEntity<User> {
   profile: string;
 
   @Column({ nullable: true })
+  providerId: string;
+
+  @Column({ nullable: true })
   otpVerification: string;
+
+  @Column({ nullable: true })
+  passwordResetToken: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetTokenExpires: Date;
 
   @Column({ nullable: true })
   fcmToken: string;

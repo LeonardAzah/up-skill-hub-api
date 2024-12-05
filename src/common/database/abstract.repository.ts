@@ -20,17 +20,13 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     return this.entityManager.save(entity);
   }
 
-  async findOneById(options: FindOneOptions<T>): Promise<T> {
+  async findOne(options: FindOneOptions<T>): Promise<T> {
     const entity = await this.entityRepository.findOne(options);
     if (!entity) {
       this.logger.warn('Entity was not found with where', options);
       throw new NotFoundException('Entity was not found');
     }
     return entity;
-  }
-
-  async findOne(options: FindOneOptions<T>): Promise<T> {
-    return this.entityRepository.findOne(options);
   }
 
   async findOneOrCreate(
@@ -63,7 +59,7 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
       this.logger.warn('Entity was not found with filterQuery', where);
       throw new NotFoundException('Entity was not found');
     }
-    return this.findOneById({ where });
+    return this.findOne({ where });
   }
 
   async find(options?: FindManyOptions<T>) {

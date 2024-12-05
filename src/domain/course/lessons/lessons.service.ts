@@ -17,14 +17,14 @@ export class LessonsService {
   ) {}
 
   async save(createLessonDto: CreateLessonDto) {
-    const section = await this.sectionsRepository.findOneById({
+    const section = await this.sectionsRepository.findOne({
       where: { id: createLessonDto.sectionId },
     });
 
     const { sectionId, ...lessonsData } = createLessonDto;
     const lesson = new Lesson({ section, ...lessonsData });
     await this.lessonsRepository.save(lesson);
-    return this.sectionsRepository.findOneById({
+    return this.sectionsRepository.findOne({
       where: { id: section.id },
     });
   }
@@ -39,14 +39,14 @@ export class LessonsService {
   }
 
   async remove(id: string) {
-    const lesson = await this.lessonsRepository.findOneById({ where: { id } });
+    const lesson = await this.lessonsRepository.findOne({ where: { id } });
     return this.lessonsRepository.remove(lesson);
   }
 
   async uploadContent(id: string, content: Express.Multer.File) {
     const folder = this.configService.get<string>('CLOUDINARY_FOLDER_COURSE');
 
-    const lesson = await this.lessonsRepository.findOneById({
+    const lesson = await this.lessonsRepository.findOne({
       where: { id },
     });
 

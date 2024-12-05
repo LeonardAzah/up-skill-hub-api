@@ -17,6 +17,9 @@ import { Role } from '../common/enums/roles.enum';
 import { NotificationsService } from '../notifications/notifications.service';
 import { generate } from 'otp-generator';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ForgotPasswordEmitterPayload } from './interfaces/forgot-password.interface';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -26,10 +29,11 @@ export class AuthService {
     private readonly hashingService: HashingService,
     private readonly authTokenService: AuthTokenService,
     private readonly notificationsService: NotificationsService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async verifyuser(email: string, password: string) {
-    const user = await this.usersRepository.findOneById({ where: { email } });
+    const user = await this.usersRepository.findOne({ where: { email } });
     const passwordIsValid = await this.hashingService.compare(
       password,
       user.password,
@@ -67,7 +71,7 @@ export class AuthService {
   }
 
   async validateJwt(payload: JwtPayload) {
-    const user = await this.usersRepository.findOneById({
+    const user = await this.usersRepository.findOne({
       where: { id: payload.sub },
     });
     if (!user) {
@@ -90,7 +94,7 @@ export class AuthService {
   }
 
   async validateRefreshJwt(refreshToken: string, payload: JwtPayload) {
-    const user = await this.usersRepository.findOneById({
+    const user = await this.usersRepository.findOne({
       where: { id: payload.sub },
     });
 
@@ -124,7 +128,7 @@ export class AuthService {
   }
 
   async getProfile(id: string) {
-    return this.usersRepository.findOneById({ where: { id } });
+    return this.usersRepository.findOne({ where: { id } });
   }
 
   async forgotPassword(email: string) {
@@ -143,40 +147,76 @@ export class AuthService {
       user.otpVerificationExpirationDate = otpVerificationExpirationDate;
       await this.usersRepository.save(user);
 
-      await this.notificationsService.notifyEmail(
+      const payload: ForgotPasswordEmitterPayload = {
+        name: user.name,
+        otp,
         email,
-        `Use this code to reset your password: ${otp}`,
-        'Forgot Password',
-      );
+      };
+
+      this.eventEmitter.emitAsync('forgot.password', payload);
     }
 
     return 'Please check your email for reset password code';
   }
 
-  async resetPassword({ email, password, otp }: ResetPasswordDto) {
+  async verifyOtp(email: string, otp: string) {
     const user = await this.usersRepository.findByEmail({ email });
-    if (user) {
-      const otpValid = await this.hashingService.compare(
-        otp,
-        user.otpVerification,
-      );
-      const otpExpired = user.otpVerificationExpirationDate <= new Date();
 
-      if (!otpValid) {
-        throw new BadRequestException('Invalid OTP');
-      }
-
-      if (otpExpired) {
-        throw new BadRequestException(
-          'OTP has expired. Please request a new one.',
-        );
-      }
-
-      user.password = password;
-      user.otpVerification = null;
-      user.otpVerificationExpirationDate = null;
-      await this.usersRepository.save(user);
+    if (!user) {
+      throw new BadRequestException('Invalid input');
     }
+
+    const otpValid = await this.hashingService.compare(
+      otp,
+      user.otpVerification,
+    );
+    const otpExpired = new Date() > user.otpVerificationExpirationDate;
+
+    if (!otpValid) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (otpExpired) {
+      throw new BadRequestException(
+        'OTP has expired. Please request a new one.',
+      );
+    }
+
+    const tenMinutes = 1000 * 60 * 10;
+    const resetTokenExpires = new Date(Date.now() + tenMinutes);
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.passwordResetToken = resetToken;
+    user.resetTokenExpires = resetTokenExpires;
+
+    user.otpVerification = null;
+    user.otpVerificationExpirationDate = null;
+
+    await this.usersRepository.save(user);
+
+    return { msg: 'OTP verified successfully.', resetToken };
+  }
+
+  async resetPassword({ email, password, token }: ResetPasswordDto) {
+    const user = await this.usersRepository.findByEmail({ email });
+    if (!user) {
+      throw new BadRequestException('Invalid input');
+    }
+
+    if (
+      !user.passwordResetToken ||
+      user.passwordResetToken !== token ||
+      new Date() > user.resetTokenExpires
+    ) {
+      throw new BadRequestException('Invalid or expired reset token.');
+    }
+
+    user.password = password;
+
+    user.passwordResetToken = null;
+    user.resetTokenExpires = null;
+
+    await this.usersRepository.save(user);
     return 'Your password has been successfully reset.';
   }
 

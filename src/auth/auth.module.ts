@@ -19,6 +19,7 @@ import { AuthTokensRepository } from './authToken.repository';
 import { AuthRefreshToken } from './entities/auth-refresh-token.entity';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { AuthEventListernerService } from './event-listerners/auth-event-listerner';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     { provide: APP_GUARD, useClass: RolesGuard },
     AuthTokenService,
     AuthTokensRepository,
+    AuthEventListernerService,
   ],
   controllers: [AuthController],
 })

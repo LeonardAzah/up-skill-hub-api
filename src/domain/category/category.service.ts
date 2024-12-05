@@ -12,7 +12,7 @@ export class CategoryService {
     const category = new Category(createCategoryDto);
 
     if (createCategoryDto.parentId) {
-      const parentCategory = await this.categoryRepository.findOneById({
+      const parentCategory = await this.categoryRepository.findOne({
         where: { id: createCategoryDto.parentId },
       });
       category.parent = parentCategory;
@@ -25,8 +25,8 @@ export class CategoryService {
     return this.categoryRepository.find({ relations: ['children'] });
   }
 
-  async findOneById(id: string) {
-    return this.categoryRepository.findOneById({
+  async findOne(id: string) {
+    return this.categoryRepository.findOne({
       where: { id },
       relations: ['children'],
     });
@@ -34,7 +34,7 @@ export class CategoryService {
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
     if (updateCategoryDto.parentId) {
-      await this.categoryRepository.findOneById({
+      await this.categoryRepository.findOne({
         where: { parentId: updateCategoryDto.parentId },
       });
     }
@@ -42,7 +42,7 @@ export class CategoryService {
   }
 
   async remove(id: string) {
-    const category = await this.categoryRepository.findOneById({
+    const category = await this.categoryRepository.findOne({
       where: { id },
     });
     return this.categoryRepository.remove(category);

@@ -21,13 +21,13 @@ export class ReviewsService {
     private eventEmitter: EventEmitter2,
   ) {}
   async save(userId: string, createReviewDto: CreateReviewDto) {
-    const user = await this.usersRepository.findOneById({
+    const user = await this.usersRepository.findOne({
       where: { id: userId },
     });
 
     const { courseId, ...reviewData } = createReviewDto;
 
-    const course = await this.coursesRepository.findOneById({
+    const course = await this.coursesRepository.findOne({
       where: { id: courseId },
       relations: { enrolledStudents: true },
     });
@@ -88,8 +88,8 @@ export class ReviewsService {
     return { data: result.data, meta };
   }
 
-  async findOneById(id: string, courseId: string) {
-    return this.reviewsRepository.findOneById({
+  async findOne(id: string, courseId: string) {
+    return this.reviewsRepository.findOne({
       where: {
         course: { id: courseId },
         user: { id },
@@ -100,7 +100,7 @@ export class ReviewsService {
   async update(id: string, createReviewDto: CreateReviewDto) {
     const { courseId, ratings, comment } = createReviewDto;
 
-    const review = await this.reviewsRepository.findOneById({
+    const review = await this.reviewsRepository.findOne({
       where: {
         course: { id: courseId },
         user: { id },
@@ -122,7 +122,7 @@ export class ReviewsService {
   }
 
   async remove(id: string, courseId: string) {
-    const review = await this.reviewsRepository.findOneById({
+    const review = await this.reviewsRepository.findOne({
       where: {
         course: { id: courseId },
         user: { id },

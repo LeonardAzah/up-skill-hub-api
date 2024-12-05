@@ -30,11 +30,11 @@ export class ReviewsController {
   }
 
   @Get()
-  findOneById(
+  findOne(
     @CurrentUser() { id }: RequestUser,
     @Body() { courseId }: GetCourseReviewDto,
   ) {
-    return this.reviewsService.findOneById(id, courseId);
+    return this.reviewsService.findOne(id, courseId);
   }
 
   @Post('update')

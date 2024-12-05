@@ -94,8 +94,8 @@ export class CourseController {
 
   @Public()
   @Get(':id')
-  async findOneById(@Param() { id }: IdDto) {
-    return this.courseService.findOneById(id);
+  async findOne(@Param() { id }: IdDto) {
+    return this.courseService.findOne(id);
   }
 
   @Roles(Role.TEACHER)

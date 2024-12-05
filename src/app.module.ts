@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsersModule } from './domain/users/users.module';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
-import { LoggerModule } from 'common';
+import { DatabaseModule, LoggerModule } from 'common';
 import { CourseModule } from './domain/course/course.module';
 import { CategoryModule } from './domain/category/category.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
@@ -13,6 +13,7 @@ import { ReviewsModule } from './domain/reviews/reviews.module';
 
 @Module({
   imports: [
+    DatabaseModule,
     UsersModule,
     CommonModule,
     AuthModule,
@@ -25,7 +26,5 @@ import { ReviewsModule } from './domain/reviews/reviews.module';
     NotificationsModule,
     ReviewsModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}
