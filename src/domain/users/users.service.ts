@@ -45,7 +45,7 @@ export class UsersService {
   async createTeacher(createUserDto: CreateUserDto) {
     const user = new User({
       ...createUserDto,
-      role: Role.TEACHER,
+      role: Role.INSTRUCTOR,
     });
     await this.usersRepository.save(user);
 

@@ -1,5 +1,4 @@
-import { IsString, IsUUID, ValidateNested } from 'class-validator';
-import { IdDto } from 'common';
+import { IsString, IsUUID } from 'class-validator';
 
 export class UpdateCategoryDto {
   @IsString()

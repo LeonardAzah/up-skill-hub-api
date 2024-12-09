@@ -60,6 +60,6 @@ export class LessonsService {
     lesson.lessonType = contentData.resource_type;
 
     await this.lessonsRepository.save(lesson);
-    return contentData.secure_url;
+    return { url: contentData.secure_url };
   }
 }

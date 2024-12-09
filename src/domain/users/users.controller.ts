@@ -90,7 +90,7 @@ export class UsersController {
     return { msg: 'FCM token updated successfully' };
   }
 
-  @Roles(Role.ADMIN, Role.TEACHER)
+  @Roles(Role.ADMIN, Role.INSTRUCTOR)
   @Get(':id')
   async findOne(@Param() { id }: IdDto) {
     return this.usersService.findOne(id);

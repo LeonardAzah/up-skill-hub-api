@@ -66,7 +66,7 @@ export class CourseService {
       where: {
         status: CourseStatus.PUBLISHED,
         title: this.filteringService.constains(q),
-        course_level,
+        courseLevel: course_level,
         language: lang,
         ratings: ratings ? MoreThanOrEqual(ratings) : undefined,
         category,
@@ -125,12 +125,23 @@ export class CourseService {
     await this.courseRepository.save(course);
 
     const payload: CourseEmitterPayload = {
-      token: course.owner.fcmToken,
+      token: course.owner?.fcmToken,
       courseTitle: course.title,
     };
 
     this.eventEmitter.emitAsync('course.thumbnail.updated', payload);
     return course;
+  }
+
+  async uploadPromotionalVideo(id: string, content: Express.Multer.File) {
+    const folder = this.configService.get<string>('CLOUDINARY_FOLDER_COURSE');
+    const course = await this.courseRepository.findOne({ where: { id } });
+    const result = await this.cloudinaryService.uploadVideo(content, folder);
+
+    course.promoVideoUrl = result.secure_url;
+
+    await this.courseRepository.save(course);
+    return { url: result.secure_url };
   }
 
   async getEnrolledCourses(id: string) {
@@ -191,7 +202,7 @@ export class CourseService {
       { status },
     );
     const payload: CourseEmitterPayload = {
-      token: course.owner.fcmToken,
+      token: course.owner?.fcmToken,
       courseTitle: course.title,
     };
 
