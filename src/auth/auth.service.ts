@@ -113,7 +113,9 @@ export class AuthService {
 
   async googleLogin(googleUser: GoogleRegisterDto, response: Response) {
     let user;
-    user = await this.usersRepository.findByEmail({ email: googleUser.email });
+    user = await this.usersRepository.findByEmail({
+      email: googleUser.email,
+    });
 
     if (!user) {
       user = new User({
@@ -162,8 +164,8 @@ export class AuthService {
   async verifyOtp(email: string, otp: string) {
     const user = await this.usersRepository.findByEmail({ email });
 
-    if (!user) {
-      throw new BadRequestException('Invalid input');
+    if (!user || !user.otpVerification) {
+      throw new BadRequestException('OTP not set or expired.');
     }
 
     const otpValid = await this.hashingService.compare(

@@ -81,7 +81,10 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return this.usersRepository.findOne({ where: { id } });
+    return this.usersRepository.findOne({
+      where: { id },
+      select: { name: true, profile: true, email: true, role: true },
+    });
   }
 
   async update(updateUserDto: UpdateUserDto, { id }: RequestUser) {
@@ -138,7 +141,8 @@ export class UsersService {
     const user = await this.usersRepository.findOne({ where: { id } });
     const imageData = await this.cloudinaryService.uploadFile(file, folder);
     user.profile = imageData.secure_url;
-    return this.usersRepository.save(user);
+    await this.usersRepository.save(user);
+    return { profile: user.profile };
   }
 
   private createEmitterPayload(user: User) {

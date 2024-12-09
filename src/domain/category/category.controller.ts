@@ -11,39 +11,39 @@ import { CategoryService } from './category.service';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Role } from 'common/enums/roles.enum';
-import { IdDto, Roles } from 'common';
+import { IdDto, Public, Roles } from 'common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 
 @ApiTags('category')
-@Roles(Role.ADMIN)
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
+
+  @Roles(Role.ADMIN)
   @Post()
   async save(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.save(createCategoryDto);
   }
 
+  @Public()
   @Get()
   async findAll() {
     return this.categoryService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param() { id }: IdDto) {
+  @Public()
+  @Get()
+  async findOne(@Body() { id }: IdDto) {
     return this.categoryService.findOne(id);
   }
 
-  @Patch(':id')
-  async update(
-    @Param() { id }: IdDto,
-    @Body() updateCategoryDto: UpdateCategoryDto,
-  ) {
-    return this.categoryService.update(id, updateCategoryDto);
+  @Patch()
+  async update(@Body() { id, name }: UpdateCategoryDto) {
+    return this.categoryService.update(id, name);
   }
 
-  @Delete(':id')
-  async remove(@Param() { id }: IdDto) {
+  @Delete()
+  async remove(@Body() { id }: IdDto) {
     return this.categoryService.remove(id);
   }
 }

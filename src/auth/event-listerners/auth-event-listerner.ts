@@ -14,8 +14,7 @@ export class AuthEventListernerService {
     otp,
   }: ForgotPasswordEmitterPayload) {
     const title = 'Forgot Password';
-    const body = `Hello, ${name}\n
-    Use this code to reset your password: ${otp}`;
+    const body = `Hello, ${name}\nUse this code to reset your password: ${otp}`;
 
     await this.notificationsSevice.notifyEmail(email, body, title);
   }

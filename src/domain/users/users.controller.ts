@@ -33,6 +33,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
   @Public()
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
@@ -56,6 +57,7 @@ export class UsersController {
   async createTeacher(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createTeacher(createUserDto);
   }
+
   @Public()
   @Post('admin')
   async createAdmin(@Body() createUserDto: CreateUserDto) {
@@ -66,6 +68,11 @@ export class UsersController {
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
     return this.usersService.findAll(paginationDto);
+  }
+
+  @Get('my-profile')
+  async userProfile(@CurrentUser() { id }: RequestUser) {
+    return this.usersService.findOne(id);
   }
 
   @Public()
@@ -103,6 +110,7 @@ export class UsersController {
     @Query() { soft }: RemoveDto,
     @CurrentUser() user: RequestUser,
   ) {
-    return this.usersService.remove(id, soft, user);
+    await this.usersService.remove(id, soft, user);
+    return { msg: 'User removed successfully' };
   }
 }

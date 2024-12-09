@@ -3,6 +3,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryRepository } from './category.repository';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { IdDto } from 'common';
 
 @Injectable()
 export class CategoryService {
@@ -11,9 +12,9 @@ export class CategoryService {
   async save(createCategoryDto: CreateCategoryDto) {
     const category = new Category(createCategoryDto);
 
-    if (createCategoryDto.parentId) {
+    if (createCategoryDto.categoryId) {
       const parentCategory = await this.categoryRepository.findOne({
-        where: { id: createCategoryDto.parentId },
+        where: { id: createCategoryDto.categoryId },
       });
       category.parent = parentCategory;
     }
@@ -28,17 +29,11 @@ export class CategoryService {
   async findOne(id: string) {
     return this.categoryRepository.findOne({
       where: { id },
-      relations: ['children'],
     });
   }
 
-  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
-    if (updateCategoryDto.parentId) {
-      await this.categoryRepository.findOne({
-        where: { parentId: updateCategoryDto.parentId },
-      });
-    }
-    return this.categoryRepository.findOneAndUpdate({ id }, updateCategoryDto);
+  async update(id: string, name: string) {
+    return this.categoryRepository.findOneAndUpdate({ id }, { name });
   }
 
   async remove(id: string) {

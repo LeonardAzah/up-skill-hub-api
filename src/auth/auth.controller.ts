@@ -20,7 +20,6 @@ import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { JwtCookieHeader } from './swagger/jwt-cookie.header';
-import { log } from 'console';
 import { RefreshUser } from './interfaces/rerefresh-user.interface';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { GoogleRegisterDto } from './dto/google-register.dto';
@@ -123,6 +122,7 @@ export class AuthController {
       name: req.user.name,
       email: req.user.email,
       profile: req.user.profile,
+      providerId: req.user.providerId,
     };
     return this.authService.googleLogin(user, response);
   }
