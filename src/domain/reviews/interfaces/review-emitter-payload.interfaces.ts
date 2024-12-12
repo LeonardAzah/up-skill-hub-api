@@ -1,6 +1,7 @@
+import { User } from 'users/entities/user.entity';
+
 export interface ReviewEmitterPayload {
-  name: string;
   courseTitle: string;
-  token?: string;
   ratings: number;
+  user: User;
 }

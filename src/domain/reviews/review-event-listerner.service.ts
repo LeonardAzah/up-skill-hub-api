@@ -9,17 +9,16 @@ export class ReviewEventListernerService {
 
   @OnEvent('student.reviewed')
   async handleUserReviewEvent({
-    name,
-    token,
+    user,
     courseTitle,
     ratings,
   }: ReviewEmitterPayload) {
     const title = 'Student made a review';
-    const body = `${name}, has reviewed on your course ${courseTitle} with a rating of ${ratings}`;
+    const body = `${user.name}, has reviewed on your course ${courseTitle} with a rating of ${ratings}`;
 
-    if (token) {
+    if (user?.fcmToken) {
       await this.notificationsService.sendPushNotification({
-        token,
+        user,
         title,
         body,
       });
@@ -28,17 +27,16 @@ export class ReviewEventListernerService {
 
   @OnEvent('student.reviewed.updated')
   async handleUserReviewUpdateEvent({
-    name,
-    token,
+    user,
     courseTitle,
     ratings,
   }: ReviewEmitterPayload) {
     const title = 'Student made a review';
-    const body = `${name}, has updated their reviewed on your course ${courseTitle} with a rating of ${ratings}`;
+    const body = `${user.name}, has updated their reviewed on your course ${courseTitle} with a rating of ${ratings}`;
 
-    if (token) {
+    if (user?.fcmToken) {
       await this.notificationsService.sendPushNotification({
-        token,
+        user,
         title,
         body,
       });

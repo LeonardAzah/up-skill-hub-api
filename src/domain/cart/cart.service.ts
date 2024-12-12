@@ -134,8 +134,7 @@ export class CartService {
         await this.cartsRepository.save(cart);
         const payload: PurchaseEmitter = {
           text,
-          email: user.email,
-          token: user?.fcmToken,
+          user,
         };
         this.eventEmitter.emitAsync('purchase.course', payload);
       } catch (error) {

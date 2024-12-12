@@ -9,14 +9,14 @@ export class PurcahseEventListernerService {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @OnEvent('purchase.course')
-  async handlePurchaseCourseEvent({ text, email, token }: PurchaseEmitter) {
+  async handlePurchaseCourseEvent({ text, user }: PurchaseEmitter) {
     const subject = 'Purchase Confirmation';
 
-    await this.notificationsService.notifyEmail(email, text, subject);
+    await this.notificationsService.notifyEmail(user.email, text, subject);
 
-    if (token) {
+    if (user?.fcmToken) {
       await this.notificationsService.sendPushNotification({
-        token,
+        user,
         title: subject,
         body: text,
       });

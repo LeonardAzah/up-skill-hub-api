@@ -1,5 +1,6 @@
+import { User } from 'users/entities/user.entity';
+
 export interface CourseEmitterPayload {
-  token?: string;
   courseTitle: string;
-  name?: string;
+  user: User;
 }

@@ -41,8 +41,8 @@ export class CourseService {
     const course = new Course({ owner: user, ...createCourseDto });
 
     const payload: CourseEmitterPayload = {
-      token: user?.fcmToken,
       courseTitle: course.title,
+      user,
     };
 
     this.eventEmitter.emitAsync('course.created', payload);
@@ -115,7 +115,7 @@ export class CourseService {
     const course = await this.courseRepository.findOne({ where: { id } });
 
     const payload: CourseEmitterPayload = {
-      token: course.owner?.fcmToken,
+      user: course.owner,
       courseTitle: course.title,
     };
 
@@ -135,7 +135,7 @@ export class CourseService {
     await this.courseRepository.save(course);
 
     const payload: CourseEmitterPayload = {
-      token: course.owner?.fcmToken,
+      user: course.owner,
       courseTitle: course.title,
     };
 
@@ -187,13 +187,12 @@ export class CourseService {
     await this.courseRepository.save(course);
 
     const payloadToInstrctors: CourseEmitterPayload = {
-      token: course.owner?.fcmToken,
+      user: course.owner,
       courseTitle: course.title,
-      name: user.name,
     };
 
     const payloadToStudent: CourseEmitterPayload = {
-      token: user?.fcmToken,
+      user: course.owner,
       courseTitle: course.title,
     };
 
@@ -212,7 +211,7 @@ export class CourseService {
       { status },
     );
     const payload: CourseEmitterPayload = {
-      token: course.owner?.fcmToken,
+      user: course.owner,
       courseTitle: course.title,
     };
 

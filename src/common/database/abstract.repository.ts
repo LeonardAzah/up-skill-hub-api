@@ -10,9 +10,7 @@ import {
   FindManyOptions,
   FindOneOptions,
   FindOptionsWhere,
-  QueryBuilder,
   Repository,
-  SelectQueryBuilder,
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 

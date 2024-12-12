@@ -2,15 +2,20 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import * as firebase from 'firebase-admin';
-import { SendNotificationDTO } from './dto/send-notification.dto';
+import { NotificationsRepository } from './notifications.repository';
+import { Notification } from './entities/notification.entity';
+import { SendNotification } from './interfaces/send-notification.interfaces';
 
 @Injectable()
 export class NotificationsService {
   protected readonly logger = new Logger(NotificationsService.name);
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly notificationRepository: NotificationsRepository,
+  ) {}
 
-  async sendPushNotification({ token, title, body }: SendNotificationDTO) {
+  async sendPushNotification({ user, title, body }: SendNotification) {
     try {
       await firebase
         .messaging()
@@ -19,7 +24,7 @@ export class NotificationsService {
             title,
             body,
           },
-          token,
+          token: user.fcmToken,
           data: {},
           android: {
             priority: 'high',
@@ -43,6 +48,9 @@ export class NotificationsService {
         .catch((error: any) => {
           this.logger.error(error);
         });
+
+      const newNotification = new Notification({ user, title, body });
+      await this.notificationRepository.save(newNotification);
     } catch (error) {
       this.logger.error(error);
 
@@ -68,5 +76,34 @@ export class NotificationsService {
       subject,
       text,
     });
+  }
+
+  async getUserNotifications(id: string) {
+    return this.notificationRepository.find({
+      where: { user: { id } },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async markAsRead(userId: string, id: string) {
+    const notification = await this.notificationRepository.findOne({
+      where: { id, user: { id: userId } },
+    });
+    notification.isRead = true;
+
+    return this.notificationRepository.save(notification);
+  }
+
+  async markAllAsRead(id: string) {
+    await this.notificationRepository.findOneAndUpdate(
+      { user: { id }, isRead: false },
+      { isRead: true },
+    );
+    return { msg: 'All notifications marked as read' };
+  }
+
+  async clearNotifications(id: string) {
+    await this.notificationRepository.delete({ user: { id } });
+    return { msg: 'All notifications cleared' };
   }
 }

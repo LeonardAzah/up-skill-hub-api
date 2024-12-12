@@ -17,7 +17,6 @@ import { ConfigService } from '@nestjs/config';
 import { CloudinaryService } from 'cloudinary/cloudinary.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FCMDto } from './dto/update-fcmtoken.dto';
-import { EmitterPayload } from './interfaces/user-emitter-payload.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
@@ -35,9 +34,7 @@ export class UsersService {
     const user = new User(createUserDto);
     await this.usersRepository.save(user);
 
-    const payload = this.createEmitterPayload(user);
-
-    this.eventEmitter.emitAsync('user.registered', payload);
+    this.eventEmitter.emitAsync('user.registered', user);
 
     return user;
   }
@@ -49,9 +46,7 @@ export class UsersService {
     });
     await this.usersRepository.save(user);
 
-    const payload = this.createEmitterPayload(user);
-
-    this.eventEmitter.emitAsync('user.registered', payload);
+    this.eventEmitter.emitAsync('user.registered', user);
 
     return user;
   }
@@ -62,9 +57,8 @@ export class UsersService {
       role: Role.ADMIN,
     });
     await this.usersRepository.save(user);
-    const payload = this.createEmitterPayload(user);
 
-    this.eventEmitter.emitAsync('user.registered', payload);
+    this.eventEmitter.emitAsync('user.registered', user);
     return user;
   }
 
@@ -130,8 +124,7 @@ export class UsersService {
     if (!user.isDeleted) {
       throw new ConflictException('User not deleted');
     }
-    const payload = this.createEmitterPayload(user);
-    this.eventEmitter.emitAsync('count.recovered', payload);
+    this.eventEmitter.emitAsync('count.recovered', user);
 
     return this.usersRepository.recover(user);
   }
@@ -143,11 +136,5 @@ export class UsersService {
     user.profile = imageData.secure_url;
     await this.usersRepository.save(user);
     return { profile: user.profile };
-  }
-
-  private createEmitterPayload(user: User) {
-    const { name, fcmToken, email } = user;
-    const emitterPayload: EmitterPayload = { name, token: fcmToken, email };
-    return emitterPayload;
   }
 }

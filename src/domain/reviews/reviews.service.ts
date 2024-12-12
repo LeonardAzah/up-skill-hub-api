@@ -44,9 +44,8 @@ export class ReviewsService {
     await this.reviewsRepository.save(review);
 
     const payload: ReviewEmitterPayload = {
-      name: user.name,
+      user,
       courseTitle: course.title,
-      token: course.owner.fcmToken,
       ratings: review.ratings,
     };
 
@@ -111,9 +110,8 @@ export class ReviewsService {
     review.comment = comment;
 
     const payload: ReviewEmitterPayload = {
-      name: review.user.name,
+      user: review.user,
       courseTitle: review.course.title,
-      token: review.course.owner.fcmToken,
       ratings: review.ratings,
     };
 

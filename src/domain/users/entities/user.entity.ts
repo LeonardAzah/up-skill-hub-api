@@ -5,6 +5,7 @@ import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
 import { Course } from 'course/entities/course.entity';
 import { Review } from 'reviews/entities/review.entity';
+import { Notification } from 'notifications/entities/notification.entity';
 import {
   Column,
   CreateDateColumn,
@@ -82,6 +83,9 @@ export class User extends AbstractEntity<User> {
 
   @OneToMany(() => Review, (review) => review.user)
   reviews: Review[];
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
 
   get isDeleted() {
     return !!this.deletedAt;
