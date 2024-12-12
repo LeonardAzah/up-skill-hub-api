@@ -41,7 +41,7 @@ export class CourseService {
     const course = new Course({ owner: user, ...createCourseDto });
 
     const payload: CourseEmitterPayload = {
-      token: user.fcmToken,
+      token: user?.fcmToken,
       courseTitle: course.title,
     };
 
@@ -51,7 +51,7 @@ export class CourseService {
   }
 
   async findAll(coursesQueryDto: CoursesQueryDto) {
-    const { page, course_level, lang, q, ratings, categoryId, sort, order } =
+    const { page, course_level, lang, q, ratings, categoryId } =
       coursesQueryDto;
     const limit = coursesQueryDto.limit ?? DefaultPageSize.COURSE;
     const offset = this.paginationService.calculateOffset(limit, page);
@@ -62,22 +62,32 @@ export class CourseService {
       });
     }
 
-    const result = await this.courseRepository.find({
-      where: {
-        status: CourseStatus.PUBLISHED,
-        title: this.filteringService.constains(q),
-        courseLevel: course_level,
-        language: lang,
-        ratings: ratings ? MoreThanOrEqual(ratings) : undefined,
-        category,
-      },
+    const query = await this.courseRepository.createQueryBuilder('course');
 
-      // order: { [sort]: order },
-      skip: offset,
-      take: limit,
+    query.leftJoin('course.reviews', 'review');
+    query.addSelect('AVG(review.ratings)', 'averageRating');
+    query.where('course.status = :status', { status: CourseStatus.PUBLISHED });
+    query.andWhere('course.title LIKE :title', { title: `%${q || ''}%` });
+    query.andWhere(course_level ? 'course.courseLevel = :courseLevel' : '1=1', {
+      courseLevel: course_level,
     });
-    const meta = this.paginationService.createMeta(limit, page, result.count);
-    return { data: result.data, meta };
+    query.andWhere(lang ? 'course.language = :language' : '1=1', {
+      language: lang,
+    });
+    query.andWhere(category ? 'course.category = :category' : '1=1', {
+      category,
+    });
+    query.having(ratings ? 'AVG(review.ratings) >= :ratings' : '1=1', {
+      ratings,
+    });
+    query.groupBy('course.id');
+    query.offset(offset).limit(limit);
+
+    console.log(query);
+    const [data, count] = await query.getManyAndCount();
+
+    const meta = this.paginationService.createMeta(limit, page, count);
+    return { data, meta };
   }
 
   async findOne(id: string) {
@@ -105,7 +115,7 @@ export class CourseService {
     const course = await this.courseRepository.findOne({ where: { id } });
 
     const payload: CourseEmitterPayload = {
-      token: course.owner.fcmToken,
+      token: course.owner?.fcmToken,
       courseTitle: course.title,
     };
 
@@ -177,13 +187,13 @@ export class CourseService {
     await this.courseRepository.save(course);
 
     const payloadToInstrctors: CourseEmitterPayload = {
-      token: course.owner.fcmToken,
+      token: course.owner?.fcmToken,
       courseTitle: course.title,
       name: user.name,
     };
 
     const payloadToStudent: CourseEmitterPayload = {
-      token: user.fcmToken,
+      token: user?.fcmToken,
       courseTitle: course.title,
     };
 

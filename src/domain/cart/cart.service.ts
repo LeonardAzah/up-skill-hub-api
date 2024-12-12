@@ -15,6 +15,8 @@ import { RequestUser } from 'common/interfaces/request-user.interface';
 import { PaymentsService } from 'payments/payments.service';
 import { NotificationsService } from '../../notifications/notifications.service';
 import { CreatePaymentDto } from 'payments/dto/create-payment.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PurchaseEmitter } from './interfaces/purchase-emitter.intrfaces';
 
 @Injectable()
 export class CartService {
@@ -26,6 +28,7 @@ export class CartService {
     private readonly paymentService: PaymentsService,
     private readonly usersRepository: UsersRepository,
     private readonly notificationsService: NotificationsService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async addToCart(id: string, courseId: string) {
@@ -126,15 +129,15 @@ export class CartService {
         
         Total: ${cart.total}`;
 
-        await this.notificationsService.notifyEmail(
-          email,
-          text,
-          'Course purchase Confirmation',
-        );
-
         cart.items = [];
         cart.total = 0;
         await this.cartsRepository.save(cart);
+        const payload: PurchaseEmitter = {
+          text,
+          email: user.email,
+          token: user?.fcmToken,
+        };
+        this.eventEmitter.emitAsync('purchase.course', payload);
       } catch (error) {
         throw new InternalServerErrorException(
           'Failed to enroll courses after payment.',

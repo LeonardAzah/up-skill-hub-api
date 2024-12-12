@@ -1,10 +1,4 @@
-import {
-  IsArray,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { NameFilterDto } from '../name-filter.dto';
 import { Type } from 'class-transformer';
 import { CourseLevel, Language } from 'common/enums/course-filter.enums';

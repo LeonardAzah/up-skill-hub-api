@@ -146,8 +146,8 @@ export class UsersService {
   }
 
   private createEmitterPayload(user: User) {
-    const { name, fcmToken } = user;
-    const emitterPayload: EmitterPayload = { name, token: fcmToken };
+    const { name, fcmToken, email } = user;
+    const emitterPayload: EmitterPayload = { name, token: fcmToken, email };
     return emitterPayload;
   }
 }

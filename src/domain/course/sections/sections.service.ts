@@ -25,6 +25,7 @@ export class SectionsService {
     const course = await this.courseRepository.findOne({
       where: { id },
       relations: ['sections'],
+      order: { sections: { index: 'ASC' } },
     });
 
     return course.sections;

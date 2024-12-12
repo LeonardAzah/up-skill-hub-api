@@ -13,6 +13,7 @@ import { UsersModule } from 'users/users.module';
 import { CourseModule } from 'course/course.module';
 import { PaymentsModule } from 'payments/payments.module';
 import { NotificationsModule } from '../../notifications/notifications.module';
+import { PurcahseEventListernerService } from './emitters/purchase-event.emitter';
 
 @Module({
   imports: [
@@ -25,7 +26,12 @@ import { NotificationsModule } from '../../notifications/notifications.module';
     DatabaseModule.forFeature([Cart, CartItem, Course, User]),
   ],
   controllers: [CartController],
-  providers: [CartService, CartsRepository, CartItemsRepository],
+  providers: [
+    CartService,
+    CartsRepository,
+    CartItemsRepository,
+    PurcahseEventListernerService,
+  ],
   exports: [CartService],
 })
 export class CartModule {}

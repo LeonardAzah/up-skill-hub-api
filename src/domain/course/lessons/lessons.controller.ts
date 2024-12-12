@@ -41,7 +41,6 @@ export class LessonsController {
     @UploadedFile(
       createContentParseFilePipe(
         '300MB',
-        'pdf',
         'mkv',
         'mov',
         'wmv',
@@ -59,12 +58,13 @@ export class LessonsController {
   @Roles(Role.INSTRUCTOR)
   @Patch()
   async update(@Body() updateLessonDto: UpdateLessonDto) {
-    this.lessonsService.update(updateLessonDto);
+    return this.lessonsService.update(updateLessonDto);
   }
 
   @Roles(Role.INSTRUCTOR)
   @Delete()
   async remove(@Body() { id }: RemoveLessonDto) {
-    return this.lessonsService.remove(id);
+    await this.lessonsService.remove(id);
+    return { msg: 'lesson removed successfully' };
   }
 }
