@@ -83,7 +83,6 @@ export class CourseService {
     query.groupBy('course.id');
     query.offset(offset).limit(limit);
 
-    console.log(query);
     const [data, count] = await query.getManyAndCount();
 
     const meta = this.paginationService.createMeta(limit, page, count);
@@ -192,7 +191,7 @@ export class CourseService {
     };
 
     const payloadToStudent: CourseEmitterPayload = {
-      user: course.owner,
+      user: user,
       courseTitle: course.title,
     };
 

@@ -21,7 +21,7 @@ import { CloudinaryModule } from 'cloudinary/cloudinary.module';
 import { SectionsController } from './sections/sections.controller';
 import { LessonsController } from './lessons/lessons.controller';
 import { NotificationsModule } from 'notifications/notifications.module';
-import { CourseEventListernerService } from './course-event-listeerner.service';
+import { CourseEventListernerService } from './course-event-listerner.service';
 
 @Module({
   imports: [
