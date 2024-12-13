@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { LessonsRepository } from './lesson.repository';
-import { CreateLessonDto } from 'course/lessons/dto/create-lesson.dto';
 import { SectionsRepository } from 'course/sections/section.repository';
 import { Lesson } from 'course/entities/lesson.entity';
 import { UpdateLessonDto } from 'course/lessons/dto/update-lesson.dto';
 import { CloudinaryService } from 'cloudinary/cloudinary.service';
 import { ConfigService } from '@nestjs/config';
-import { UploadContentDto } from 'course/lessons/dto/upload-content.dto';
+import { CreateLessonDto } from './dto/create-lesson.dto';
 
 @Injectable()
 export class LessonsService {
@@ -17,14 +16,14 @@ export class LessonsService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async create(createLessonDto: CreateLessonDto) {
+  async save(createLessonDto: CreateLessonDto) {
     const section = await this.sectionsRepository.findOne({
       where: { id: createLessonDto.sectionId },
     });
 
     const { sectionId, ...lessonsData } = createLessonDto;
     const lesson = new Lesson({ section, ...lessonsData });
-    await this.lessonsRepository.create(lesson);
+    await this.lessonsRepository.save(lesson);
     return this.sectionsRepository.findOne({
       where: { id: section.id },
     });
@@ -60,7 +59,7 @@ export class LessonsService {
     lesson.contentUrl = contentData.secure_url;
     lesson.lessonType = contentData.resource_type;
 
-    await this.lessonsRepository.create(lesson);
-    return contentData.secure_url;
+    await this.lessonsRepository.save(lesson);
+    return { url: contentData.secure_url };
   }
 }

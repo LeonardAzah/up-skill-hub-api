@@ -7,6 +7,9 @@ export class GoogleRegisterDto {
   @IsEmail()
   email: string;
 
+  @IsString()
+  providerId: string;
+
   @IsOptional()
   @IsString()
   profile?: string;

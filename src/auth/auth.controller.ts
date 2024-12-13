@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -11,18 +12,20 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { CurrentUser } from 'auth/decorators/current-user.decorator';
+import { CurrentUser } from 'common/Decorators/current-user.decorator';
 import { Response, Request } from 'express';
-import { RequestUser } from './interfaces/request-user.interface';
-import { Public } from './decorators/public.decorator';
+import { RequestUser } from '../common/interfaces/request-user.interface';
+import { Public } from '../common/Decorators/public.decorator';
 import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { JwtCookieHeader } from './swagger/jwt-cookie.header';
-import { log } from 'console';
 import { RefreshUser } from './interfaces/rerefresh-user.interface';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { GoogleRegisterDto } from './dto/google-register.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -43,6 +46,27 @@ export class AuthController {
   ) {
     await this.authService.login(user, response);
     response.send(user);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('forgot-password')
+  async forgotPassword(@Body() { email }: ForgotPasswordDto) {
+    return this.authService.forgotPassword(email);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-otp')
+  async verifyOtp(@Body() { email, otp }: VerifyOtpDto) {
+    return this.authService.verifyOtp(email, otp);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 
   @ApiOkResponse({
@@ -98,6 +122,7 @@ export class AuthController {
       name: req.user.name,
       email: req.user.email,
       profile: req.user.profile,
+      providerId: req.user.providerId,
     };
     return this.authService.googleLogin(user, response);
   }

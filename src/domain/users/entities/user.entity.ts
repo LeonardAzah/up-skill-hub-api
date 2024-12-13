@@ -1,9 +1,11 @@
 import { AuthRefreshToken } from 'auth/entities/auth-refresh-token.entity';
-import { Role } from 'auth/roles/enums/roles.enum';
+import { Role } from 'common/enums/roles.enum';
 import { Cart } from 'cart/entities/cart.entity';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
 import { Course } from 'course/entities/course.entity';
+import { Review } from 'reviews/entities/review.entity';
+import { Notification } from 'notifications/entities/notification.entity';
 import {
   Column,
   CreateDateColumn,
@@ -12,6 +14,7 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -29,6 +32,24 @@ export class User extends AbstractEntity<User> {
 
   @Column({ nullable: true })
   profile: string;
+
+  @Column({ nullable: true })
+  providerId: string;
+
+  @Column({ nullable: true })
+  otpVerification: string;
+
+  @Column({ nullable: true })
+  passwordResetToken: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetTokenExpires: Date;
+
+  @Column({ nullable: true })
+  fcmToken: string;
+
+  @Column({ nullable: true })
+  otpVerificationExpirationDate: Date;
 
   @Column({
     type: 'enum',
@@ -57,8 +78,14 @@ export class User extends AbstractEntity<User> {
   @JoinTable({ name: 'enrolled_courses' })
   enrolledCourses: Course[];
 
-  @OneToMany(() => Cart, (cart) => cart.user)
+  @OneToOne(() => Cart, (cart) => cart.user, { cascade: true })
   cart: Cart;
+
+  @OneToMany(() => Review, (review) => review.user)
+  reviews: Review[];
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
 
   get isDeleted() {
     return !!this.deletedAt;

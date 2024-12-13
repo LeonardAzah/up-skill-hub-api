@@ -12,6 +12,7 @@ export const VALIDATION_PIPE_OPTIONS: ValidationPipeOptions = {
 export const DefaultPageSize = {
   USER: 10,
   COURSE: 25,
+  REVIEW: 10,
 } as const satisfies Record<string, number>;
 
 export const MAX_PAGE_SIZE = 100;

@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsOptional,
+  IsString,
   IsStrongPassword,
   IsUrl,
   Length,
@@ -19,4 +20,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsUrl()
   readonly profile?: string;
+
+  @IsOptional()
+  @IsString()
+  fcmToken?: string;
 }

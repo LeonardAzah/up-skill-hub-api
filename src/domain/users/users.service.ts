@@ -4,18 +4,20 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.reposisoty';
 import { User } from './entities/user.entity';
 import { DefaultPageSize, PaginationDto, PaginationService } from 'common';
-import { Role } from 'auth/roles/enums/roles.enum';
+import { Role } from 'common/enums/roles.enum';
 import { LoginDto } from 'auth/dto/login.dto';
 import { HashingService } from 'common/hashing/hashing.service';
-import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { RequestUser } from 'common/interfaces/request-user.interface';
 import { compareUserId } from 'common/utils/authorization.util';
 import { ConfigService } from '@nestjs/config';
 import { CloudinaryService } from 'cloudinary/cloudinary.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { FCMDto } from './dto/update-fcmtoken.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,19 +27,28 @@ export class UsersService {
     private readonly hashingService: HashingService,
     private readonly configService: ConfigService,
     private readonly cloudinaryService: CloudinaryService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
     const user = new User(createUserDto);
-    return this.usersRepository.create(user);
+    await this.usersRepository.save(user);
+
+    this.eventEmitter.emitAsync('user.registered', user);
+
+    return user;
   }
 
   async createTeacher(createUserDto: CreateUserDto) {
     const user = new User({
       ...createUserDto,
-      role: Role.TEACHER,
+      role: Role.INSTRUCTOR,
     });
-    return this.usersRepository.create(user);
+    await this.usersRepository.save(user);
+
+    this.eventEmitter.emitAsync('user.registered', user);
+
+    return user;
   }
 
   async createAdmin(createUserDto: CreateUserDto) {
@@ -45,7 +56,10 @@ export class UsersService {
       ...createUserDto,
       role: Role.ADMIN,
     });
-    return this.usersRepository.create(user);
+    await this.usersRepository.save(user);
+
+    this.eventEmitter.emitAsync('user.registered', user);
+    return user;
   }
 
   async findAll(paginationDto: PaginationDto) {
@@ -61,16 +75,20 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return this.usersRepository.findOne({ where: { id } });
+    return this.usersRepository.findOne({
+      where: { id },
+      select: { name: true, profile: true, email: true, role: true },
+    });
   }
 
-  async update(
-    id: string,
-    updateUserDto: UpdateUserDto,
-    currentUser: RequestUser,
-  ) {
-    await compareUserId(currentUser, id);
+  async update(updateUserDto: UpdateUserDto, { id }: RequestUser) {
     return this.usersRepository.findOneAndUpdate({ id }, updateUserDto);
+  }
+
+  async updateFcmToken(id: string, { fcmToken }: FCMDto) {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    user.fcmToken = fcmToken;
+    return this.usersRepository.save(user);
   }
 
   async remove(id: string, soft: boolean, currentUser: RequestUser) {
@@ -106,6 +124,7 @@ export class UsersService {
     if (!user.isDeleted) {
       throw new ConflictException('User not deleted');
     }
+    this.eventEmitter.emitAsync('count.recovered', user);
 
     return this.usersRepository.recover(user);
   }
@@ -115,6 +134,7 @@ export class UsersService {
     const user = await this.usersRepository.findOne({ where: { id } });
     const imageData = await this.cloudinaryService.uploadFile(file, folder);
     user.profile = imageData.secure_url;
-    return this.usersRepository.create(user);
+    await this.usersRepository.save(user);
+    return { profile: user.profile };
   }
 }

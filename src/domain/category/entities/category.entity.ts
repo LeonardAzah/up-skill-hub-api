@@ -1,9 +1,11 @@
+import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'common';
 import { Course } from 'course/entities/course.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -12,7 +14,7 @@ import {
 
 @Entity()
 export class Category extends AbstractEntity<Category> {
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @ManyToOne(() => Category, (category) => category.children, {
@@ -20,21 +22,15 @@ export class Category extends AbstractEntity<Category> {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'parentId' })
+  @Index()
   parent?: Category;
-
-  @Column({ nullable: true })
-  parentId?: string;
-
-  @ManyToOne(() => Category, (category) => category.courses, {
-    onDelete: 'SET NULL',
-    nullable: true,
-  })
-  category: Category;
 
   @OneToMany(() => Course, (course) => course.category)
   courses: Course[];
 
-  @OneToMany(() => Category, (category) => category.parent)
+  @OneToMany(() => Category, (category) => category.parent, {
+    cascade: true,
+  })
   children: Category[];
 
   @CreateDateColumn()

@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddToCartDto } from './dto/add-to-cart';
-import { CurrentUser } from 'auth/decorators/current-user.decorator';
-import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { CurrentUser } from 'common/Decorators/current-user.decorator';
+import { RequestUser } from 'common/interfaces/request-user.interface';
 import { IdDto } from 'common';
 import { CreatePaymentDto } from 'payments/dto/create-payment.dto';
 
@@ -31,10 +31,10 @@ export class CartController {
     return this.cartService.getCart(id);
   }
 
-  @Delete(':id')
+  @Delete()
   async removeFromCart(
     @CurrentUser() user: RequestUser,
-    @Param() { id }: IdDto,
+    @Body() { id }: IdDto,
   ) {
     return this.cartService.removeFromCart(user.id, id);
   }

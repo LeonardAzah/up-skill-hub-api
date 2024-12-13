@@ -18,12 +18,15 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuthTokensRepository } from './authToken.repository';
 import { AuthRefreshToken } from './entities/auth-refresh-token.entity';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { AuthEventListernerService } from './event-listerners/auth-event-listerner';
 
 @Module({
   imports: [
     UsersModule,
     ConfigModule,
     DatabaseModule,
+    NotificationsModule,
     DatabaseModule.forFeature([AuthRefreshToken]),
 
     CommonModule,
@@ -49,6 +52,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     { provide: APP_GUARD, useClass: RolesGuard },
     AuthTokenService,
     AuthTokensRepository,
+    AuthEventListernerService,
   ],
   controllers: [AuthController],
 })

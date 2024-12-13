@@ -11,10 +11,12 @@ import { UsersRepository } from 'users/users.reposisoty';
 import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { CourseService } from 'course/course.service';
-import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { RequestUser } from 'common/interfaces/request-user.interface';
 import { PaymentsService } from 'payments/payments.service';
-import { CreateChargeDto } from 'payments/dto/create-charge.dto';
+import { NotificationsService } from '../../notifications/notifications.service';
 import { CreatePaymentDto } from 'payments/dto/create-payment.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PurchaseEmitter } from './interfaces/purchase-emitter.intrfaces';
 
 @Injectable()
 export class CartService {
@@ -25,6 +27,8 @@ export class CartService {
     private readonly coursesService: CourseService,
     private readonly paymentService: PaymentsService,
     private readonly usersRepository: UsersRepository,
+    private readonly notificationsService: NotificationsService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async addToCart(id: string, courseId: string) {
@@ -34,27 +38,36 @@ export class CartService {
 
     const cart = await this.getCart(id);
 
-    const existingItem = cart.items.find(
+    const existingItem = cart.items?.find(
       (item) => item.course.id === course.id,
     );
-    if (existingItem) return;
+    if (existingItem) return cart;
 
-    const cartItem = new CartItem({ cart, course, price: course.price });
-
-    await this.cartItemsRepository.create(cartItem);
-
+    const cartItem = new CartItem({
+      cart,
+      course,
+      price: Number(course.price),
+    });
     cart.items.push(cartItem);
-    cart.total += course.price;
 
-    return this.cartsRepository.create(cart);
+    cart.total = Number(cart.total) + Number(cartItem.price);
+
+    await this.cartsRepository.save(cart);
+
+    return this.cartsRepository.findOne({
+      where: { id: cart.id },
+      relations: ['items', 'items.course'],
+    });
   }
 
   async getCart(id: string) {
     const user = await this.usersRepository.findOne({ where: { id } });
-    return this.cartsRepository.findOneOrCreate(
+    const cart = await this.cartsRepository.findOneOrCreate(
       { where: { user: { id } }, relations: ['items', 'items.course'] },
       () => new Cart({ user, items: [], total: 0 }),
     );
+
+    return cart;
   }
 
   async removeFromCart(id: string, itemId: string) {
@@ -63,16 +76,16 @@ export class CartService {
     const cartItemIndex = cart.items.findIndex((item) => item.id === itemId);
 
     if (cartItemIndex === -1) {
-      throw new NotFoundException('Course not in cart');
+      throw new NotFoundException('Item not in cart');
     }
 
     const cartItem = cart.items[cartItemIndex];
 
     cart.items.splice(cartItemIndex, 1);
-    cart.total -= cartItem.price;
+    cart.total = Number(cart.total) - Number(cartItem.price);
 
     await this.cartItemsRepository.remove(cartItem);
-    await this.cartsRepository.create(cart);
+    await this.cartsRepository.save(cart);
 
     return cart;
   }
@@ -91,22 +104,39 @@ export class CartService {
 
     const user = await this.usersRepository.findOne({ where: { id } });
     const amount = cart.total;
-    const paymentIntent = await this.paymentService.create({
+
+    const paymentIntent = await this.paymentService.save({
       amount,
       email: email,
       ...createPaymentDto,
     });
     if (paymentIntent.status === 'requires_confirmation') {
       try {
-        await Promise.all(
-          cart.items.map((item) => {
+        const purchaseData: string[] = await Promise.all(
+          cart.items.map(async (item) => {
             this.coursesService.enrollToCourse(item.course.id, user);
+            return `
+            Course name: ${item.course.title}
+            Course price: ${item.price}
+            Enrolled By: ${user.name}`;
           }),
         );
 
+        const text = `
+        Confirmation
+        
+        ${purchaseData.join('\n\n')}
+        
+        Total: ${cart.total}`;
+
         cart.items = [];
         cart.total = 0;
-        await this.cartsRepository.create(cart);
+        await this.cartsRepository.save(cart);
+        const payload: PurchaseEmitter = {
+          text,
+          user,
+        };
+        this.eventEmitter.emitAsync('purchase.course', payload);
       } catch (error) {
         throw new InternalServerErrorException(
           'Failed to enroll courses after payment.',

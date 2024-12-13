@@ -13,11 +13,15 @@ import {
 } from 'typeorm';
 import { User } from 'users/entities/user.entity';
 import { Section } from './section.entity';
+import { Review } from 'reviews/entities/review.entity';
 
 @Entity()
 export class Course extends AbstractEntity<Course> {
-  @Column()
+  @Column({ unique: true })
   title: string;
+
+  @Column({ nullable: true })
+  subtitle?: string;
 
   @Column()
   description: string;
@@ -26,11 +30,9 @@ export class Course extends AbstractEntity<Course> {
     type: 'enum',
     enum: Language,
     enumName: 'language',
+    default: Language.English,
   })
   language: Language;
-
-  // @Column({ nullable: true })
-  // duration?: string;
 
   @Column({
     type: 'enum',
@@ -38,16 +40,10 @@ export class Course extends AbstractEntity<Course> {
     enumName: 'course_levels',
     nullable: true,
   })
-  course_level?: CourseLevel[];
+  courseLevel?: CourseLevel;
 
   @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
   price?: number;
-
-  @Column({ type: 'float', nullable: true })
-  ratings: number;
-
-  @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
-  discountPrice?: number;
 
   @ManyToOne(() => Category, (category) => category.courses, {
     onDelete: 'SET NULL',
@@ -68,6 +64,11 @@ export class Course extends AbstractEntity<Course> {
     eager: true,
   })
   sections?: Section[];
+
+  @OneToMany(() => Review, (review) => review.course, {
+    cascade: true,
+  })
+  reviews: Review[];
 
   @ManyToMany(() => User, (user) => user.enrolledCourses, { nullable: true })
   enrolledStudents?: User[];

@@ -1,5 +1,10 @@
 import { AbstractEntity } from './abstract.entity';
-import { Logger, NotFoundException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { Order, OrderDto } from 'common/querying';
 import {
   EntityManager,
   FindManyOptions,
@@ -16,7 +21,7 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     private readonly entityManager: EntityManager,
   ) {}
 
-  async create(entity: T): Promise<T> {
+  async save(entity: T): Promise<T> {
     return this.entityManager.save(entity);
   }
 
@@ -37,7 +42,7 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     if (!entity) {
       this.logger.log('Entity not found, creating a new one');
       entity = factory();
-      await this.create(entity);
+      await this.save(entity);
     }
     return entity;
   }
@@ -65,6 +70,46 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
   async find(options?: FindManyOptions<T>) {
     const [data, count] = await this.entityRepository.findAndCount(options);
     return { data, count };
+  }
+
+  async createQueryBuilder(
+    alias: string,
+    options?: {
+      where?: string;
+      parameters?: Record<string, any>;
+      orderBy?: Record<string, Order>;
+      relations?: string[];
+    },
+  ) {
+    try {
+      const queryBuilder = await this.entityManager.createQueryBuilder<T>(
+        this.entityRepository.target,
+        alias,
+      );
+
+      // Add WHERE clause if provided
+      if (options?.where) {
+        queryBuilder.where(options.where, options.parameters);
+      }
+
+      // Add ORDER BY clause if provided
+      if (options?.orderBy) {
+        Object.entries(options.orderBy).forEach(([column, direction]) => {
+          queryBuilder.addOrderBy(`${alias}.${column}`, direction);
+        });
+      }
+
+      // Add RELATIONS if provided
+      if (options?.relations) {
+        options.relations.forEach((relation) => {
+          queryBuilder.leftJoinAndSelect(`${alias}.${relation}`, relation);
+        });
+      }
+
+      return queryBuilder;
+    } catch (error) {
+      throw new InternalServerErrorException('Error creating query builder');
+    }
   }
 
   async findOneAndDelete(where: FindOptionsWhere<T>) {

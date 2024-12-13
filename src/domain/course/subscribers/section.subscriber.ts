@@ -5,11 +5,7 @@ import {
   UpdateEvent,
   DataSource,
 } from 'typeorm';
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Course } from 'course/entities/course.entity';
-import { CategoryRepository } from 'category/category.repository';
-import { Category } from 'category/entities/category.entity';
-import { BeforeQueryEvent } from 'typeorm/subscriber/event/QueryEvent';
+import { Injectable } from '@nestjs/common';
 import { Section } from 'course/entities/section.entity';
 import { CourseRepository } from 'course/course.repository';
 

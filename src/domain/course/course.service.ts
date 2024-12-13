@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CourseRepository } from './course.repository';
 import { Course } from './entities/course.entity';
@@ -13,13 +12,16 @@ import {
 } from 'common';
 import { CoursesQueryDto } from './dto/course-query.dto';
 import { MoreThanOrEqual } from 'typeorm';
-import { RequestUser } from 'auth/interfaces/request-user.interface';
+import { RequestUser } from 'common/interfaces/request-user.interface';
 import { compareUserId } from 'common/utils/authorization.util';
 import { ConfigService } from '@nestjs/config';
 import { CloudinaryService } from 'cloudinary/cloudinary.service';
 import { CourseStatus } from './enums/status.enum';
 import { CourseStatusDto } from './dto/status.dto';
 import { User } from 'users/entities/user.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CourseEmitterPayload } from './interfaces/course-emitter-payload.interfaces';
+import { CreateCourseDto } from './dto/create-course.dto';
 
 @Injectable()
 export class CourseService {
@@ -31,16 +33,25 @@ export class CourseService {
     private readonly filteringService: FilteringService,
     private readonly configService: ConfigService,
     private readonly cloudinaryService: CloudinaryService,
+    private eventEmitter: EventEmitter2,
   ) {}
-  async create(id: string, createCourseDto: CreateCourseDto) {
+  async save(id: string, createCourseDto: CreateCourseDto) {
     const user = await this.usersRepository.findOne({ where: { id } });
 
     const course = new Course({ owner: user, ...createCourseDto });
-    return this.courseRepository.create(course);
+
+    const payload: CourseEmitterPayload = {
+      courseTitle: course.title,
+      user,
+    };
+
+    this.eventEmitter.emitAsync('course.created', payload);
+
+    return this.courseRepository.save(course);
   }
 
   async findAll(coursesQueryDto: CoursesQueryDto) {
-    const { page, course_level, lang, q, ratings, categoryId, sort, order } =
+    const { page, course_level, lang, q, ratings, categoryId } =
       coursesQueryDto;
     const limit = coursesQueryDto.limit ?? DefaultPageSize.COURSE;
     const offset = this.paginationService.calculateOffset(limit, page);
@@ -51,22 +62,31 @@ export class CourseService {
       });
     }
 
-    const result = await this.courseRepository.find({
-      where: {
-        status: CourseStatus.PUBLISHED,
-        title: this.filteringService.constains(q),
-        course_level,
-        language: lang,
-        ratings: ratings ? MoreThanOrEqual(ratings) : undefined,
-        category,
-      },
+    const query = await this.courseRepository.createQueryBuilder('course');
 
-      // order: { [sort]: order },
-      skip: offset,
-      take: limit,
+    query.leftJoin('course.reviews', 'review');
+    query.addSelect('AVG(review.ratings)', 'averageRating');
+    query.where('course.status = :status', { status: CourseStatus.PUBLISHED });
+    query.andWhere('course.title LIKE :title', { title: `%${q || ''}%` });
+    query.andWhere(course_level ? 'course.courseLevel = :courseLevel' : '1=1', {
+      courseLevel: course_level,
     });
-    const meta = this.paginationService.createMeta(limit, page, result.count);
-    return { data: result.data, meta };
+    query.andWhere(lang ? 'course.language = :language' : '1=1', {
+      language: lang,
+    });
+    query.andWhere(category ? 'course.category = :category' : '1=1', {
+      category,
+    });
+    query.having(ratings ? 'AVG(review.ratings) >= :ratings' : '1=1', {
+      ratings,
+    });
+    query.groupBy('course.id');
+    query.offset(offset).limit(limit);
+
+    const [data, count] = await query.getManyAndCount();
+
+    const meta = this.paginationService.createMeta(limit, page, count);
+    return { data, meta };
   }
 
   async findOne(id: string) {
@@ -92,6 +112,14 @@ export class CourseService {
 
   async remove(id: string) {
     const course = await this.courseRepository.findOne({ where: { id } });
+
+    const payload: CourseEmitterPayload = {
+      user: course.owner,
+      courseTitle: course.title,
+    };
+
+    this.eventEmitter.emitAsync('course.removed', payload);
+
     return this.courseRepository.remove(course);
   }
 
@@ -103,7 +131,26 @@ export class CourseService {
       folder,
     );
     course.thumbnailUrl = imageData.secure_url;
-    return this.courseRepository.create(course);
+    await this.courseRepository.save(course);
+
+    const payload: CourseEmitterPayload = {
+      user: course.owner,
+      courseTitle: course.title,
+    };
+
+    this.eventEmitter.emitAsync('course.thumbnail.updated', payload);
+    return course;
+  }
+
+  async uploadPromotionalVideo(id: string, content: Express.Multer.File) {
+    const folder = this.configService.get<string>('CLOUDINARY_FOLDER_COURSE');
+    const course = await this.courseRepository.findOne({ where: { id } });
+    const result = await this.cloudinaryService.uploadVideo(content, folder);
+
+    course.promoVideoUrl = result.secure_url;
+
+    await this.courseRepository.save(course);
+    return { url: result.secure_url };
   }
 
   async getEnrolledCourses(id: string) {
@@ -136,14 +183,39 @@ export class CourseService {
     if (isEnrolled) return;
 
     course.enrolledStudents.push(user);
-    await this.courseRepository.create(course);
+    await this.courseRepository.save(course);
+
+    const payloadToInstrctors: CourseEmitterPayload = {
+      user: course.owner,
+      courseTitle: course.title,
+    };
+
+    const payloadToStudent: CourseEmitterPayload = {
+      user: user,
+      courseTitle: course.title,
+    };
+
+    this.eventEmitter.emitAsync('student.enrolled', payloadToInstrctors);
+
+    this.eventEmitter.emitAsync('course.enrolled', payloadToStudent);
+
     const { enrolledStudents, ...courseWithoutStudents } = course;
 
     return courseWithoutStudents;
   }
 
   async updateStatus(id: string, { status }: CourseStatusDto) {
-    return this.courseRepository.findOneAndUpdate({ id }, { status });
+    const course = await this.courseRepository.findOneAndUpdate(
+      { id },
+      { status },
+    );
+    const payload: CourseEmitterPayload = {
+      user: course.owner,
+      courseTitle: course.title,
+    };
+
+    this.eventEmitter.emitAsync('course.status.updated', payload);
+    return course;
   }
 
   async submitForReview(id: string) {

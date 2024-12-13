@@ -8,11 +8,7 @@ import { ConfigModule } from 'common';
 
 @Module({
   imports: [CommonModule, ConfigModule],
-  providers: [
-    CloudinaryService,
-    CloudinaryProvider,
-    // { provide: APP_FILTER, useClass: FilesExceptionFilter },
-  ],
+  providers: [CloudinaryService, CloudinaryProvider],
   exports: [CloudinaryService, CloudinaryProvider],
 })
 export class CloudinaryModule {}

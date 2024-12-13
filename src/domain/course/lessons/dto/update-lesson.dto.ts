@@ -1,5 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsUrl } from 'class-validator';
-import { LessonType } from 'course/enums/lessons-type.enum';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateLessonDto {
   @IsString()
