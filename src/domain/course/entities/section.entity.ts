@@ -1,12 +1,5 @@
 import { AbstractEntity } from 'common';
-import {
-  Column,
-  Entity,
-  Generated,
-  Index,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { Course } from './course.entity';
 import { Lesson } from './lesson.entity';
 
@@ -15,8 +8,11 @@ export class Section extends AbstractEntity<Section> {
   @Column()
   index: number;
 
-  @Column()
+  @Column({ unique: true })
   title: string;
+
+  @Column()
+  courseId: string;
 
   @ManyToOne(() => Course, (course) => course.sections, { onDelete: 'CASCADE' })
   course: Course;

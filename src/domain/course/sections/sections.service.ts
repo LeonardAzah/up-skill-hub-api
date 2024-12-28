@@ -1,23 +1,53 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { SectionsRepository } from './section.repository';
 import { Section } from 'course/entities/section.entity';
 import { CourseRepository } from 'course/course.repository';
 import { UpdateSectionDto } from 'course/sections/dto/update-section.dto';
 import { CreateSectionDto } from './dto/create-section.dto';
+import { EntityManager, In } from 'typeorm';
 
 @Injectable()
 export class SectionsService {
   constructor(
     private readonly sectionsRepository: SectionsRepository,
     private readonly courseRepository: CourseRepository,
+    private readonly entityManager: EntityManager,
   ) {}
 
   async save(id: string, createSection: CreateSectionDto) {
-    const course = await this.courseRepository.findOne({ where: { id } });
+    const course = await this.courseRepository.findOne({
+      where: { id },
+      relations: ['sections'],
+    });
+    interface MaxIndexResult {
+      maxIndex: number;
+    }
 
-    const nextIndex = await this.getNextSectionIndex(id);
+    const maxIndexResult = await this.entityManager
+      .getRepository('section')
+      .createQueryBuilder('section')
+      .select('COALESCE(MAX(section.index), 0)', 'maxIndex')
+      .where('section."courseId" = :courseId', {
+        courseId: course.id,
+      })
+      .getRawOne<MaxIndexResult>();
 
-    const section = new Section({ index: nextIndex, course, ...createSection });
+    const maxIndex = maxIndexResult.maxIndex;
+    console.log(maxIndex);
+
+    const nextIndex = maxIndex + 1;
+
+    const section = new Section({
+      index: nextIndex,
+      courseId: id,
+      course,
+      ...createSection,
+    });
+    console.log(section);
     return this.sectionsRepository.save(section);
   }
 
@@ -36,27 +66,29 @@ export class SectionsService {
     return this.sectionsRepository.findOneAndUpdate({ id: sectionId }, section);
   }
 
-  async reorderSections(courseId: string, newOrder: string[]) {
-    const course = await this.courseRepository.findOne({
-      where: { id: courseId },
-      relations: ['sections'],
+  async reorderSections(
+    courseId: string,
+    section1Id: string,
+    section2Id: string,
+  ) {
+    const sections = await this.sectionsRepository.findBy({
+      id: In([section1Id, section2Id]),
+      courseId,
     });
-    const sectionsIds = course.sections.map((section) => section.id);
-    if (
-      new Set(newOrder).size !== sectionsIds.length ||
-      !newOrder.every((id) => sectionsIds.includes(id))
-    ) {
-      throw new BadRequestException('Invalid section order');
+
+    if (sections.length !== 2) {
+      throw new NotFoundException(
+        'One or both sections not found for the given course',
+      );
     }
 
-    await Promise.all(
-      newOrder.map((sectionId, index) =>
-        this.sectionsRepository.findOneAndUpdate(
-          { id: sectionId },
-          { index: index + 1 },
-        ),
-      ),
-    );
+    const [firstSection, secondSection] = sections;
+    const tempIndex = firstSection.index;
+    firstSection.index = secondSection.index;
+    secondSection.index = tempIndex;
+
+    await this.sectionsRepository.save(firstSection);
+    await this.sectionsRepository.save(secondSection);
   }
 
   async remove(id: string) {
@@ -68,11 +100,15 @@ export class SectionsService {
   }
 
   private async getNextSectionIndex(courseId: string) {
-    const lastSection = await this.sectionsRepository.findOne({
-      where: { course: { id: courseId } },
-      order: { index: 'DESC' },
-    });
+    const query = await this.sectionsRepository.createQueryBuilder('section');
+    query.select('MAX(section.index)', 'index');
+    query.where('section.courseId = :courseId', { courseId });
+    const result = await query.getRawOne();
 
-    return lastSection ? lastSection.index + 1 : 1;
+    console.log(result);
+
+    const maxIndex = result?.index ?? 0;
+
+    return maxIndex + 1;
   }
 }

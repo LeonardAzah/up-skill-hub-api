@@ -6,6 +6,9 @@ import { LessonType } from 'course/enums/lessons-type.enum';
 @Entity()
 export class Lesson extends AbstractEntity<Lesson> {
   @Column()
+  index: number;
+
+  @Column({ unique: true })
   title: string;
 
   @Column({
@@ -17,6 +20,9 @@ export class Lesson extends AbstractEntity<Lesson> {
 
   @Column({ nullable: true })
   contentUrl: string;
+
+  @Column()
+  sectioId: string;
 
   @ManyToOne(() => Section, (section) => section.lessons, {
     onDelete: 'CASCADE',

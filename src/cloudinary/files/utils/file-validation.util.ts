@@ -11,17 +11,9 @@ import { lookup } from 'mime-types';
 import { FileSignatureValidator } from 'cloudinary/files/validators/file-signature.validator';
 
 type FileSize = `${number}${'KB' | 'MB' | 'GB'}`;
-type FileType = 'png' | 'jpeg';
+type FileType = 'png' | 'jpeg' | 'pdf' | 'html';
 
-type ContentFileType =
-  | 'pdf'
-  | 'mp4'
-  | 'mkv'
-  | 'mov'
-  | 'wmv'
-  | 'flv'
-  | 'avi'
-  | 'webm';
+type ContentFileType = 'mp4' | 'mkv' | 'mov' | 'wmv' | 'flv' | 'avi' | 'webm';
 
 const createFileTypeRegex = (fileTypes: FileType[] | ContentFileType[]) => {
   const mediaTypes = fileTypes.map((type) => lookup(type));

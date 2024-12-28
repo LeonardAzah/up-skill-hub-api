@@ -11,7 +11,10 @@ import {
 import { LessonsService } from './lessons.service';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { createContentParseFilePipe } from 'cloudinary/files/utils/file-validation.util';
+import {
+  createContentParseFilePipe,
+  createParseFilePipe,
+} from 'cloudinary/files/utils/file-validation.util';
 import { IdDto, Role, Roles } from 'common';
 import { UploadContentDto } from 'course/lessons/dto/upload-content.dto';
 import { multerOptions } from 'cloudinary/config/multer.config';
@@ -53,6 +56,18 @@ export class LessonsController {
     content: Express.Multer.File,
   ) {
     return this.lessonsService.uploadContent(lessonId, content);
+  }
+
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: FileSchema })
+  @Patch('pdf-content')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProfile(
+    @Body() { lessonId }: UploadContentDto,
+    @UploadedFile(createParseFilePipe('2MB', 'pdf', 'html'))
+    file: Express.Multer.File,
+  ) {
+    return this.lessonsService.uploadPdfAndHtmlContnet(lessonId, file);
   }
 
   @Roles(Role.INSTRUCTOR)

@@ -6,6 +6,7 @@ import { UpdateLessonDto } from 'course/lessons/dto/update-lesson.dto';
 import { CloudinaryService } from 'cloudinary/cloudinary.service';
 import { ConfigService } from '@nestjs/config';
 import { CreateLessonDto } from './dto/create-lesson.dto';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class LessonsService {
@@ -14,6 +15,7 @@ export class LessonsService {
     private readonly sectionsRepository: SectionsRepository,
     private readonly configService: ConfigService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly entityManager: EntityManager,
   ) {}
 
   async save(createLessonDto: CreateLessonDto) {
@@ -21,8 +23,25 @@ export class LessonsService {
       where: { id: createLessonDto.sectionId },
     });
 
+    interface MaxIndexResult {
+      maxIndex: number;
+    }
+
+    const maxIndexResult = await this.entityManager
+      .getRepository('lesson')
+      .createQueryBuilder('lesson')
+      .select('COALESCE(MAX(lesson.index), 0)', 'maxIndex')
+      .where('lesson.sectionId = :sectionId', {
+        sectionId: createLessonDto.sectionId,
+      })
+      .getRawOne<MaxIndexResult>();
+
+    const maxIndex = maxIndexResult.maxIndex;
+
+    const nextIndex = maxIndex + 1;
+
     const { sectionId, ...lessonsData } = createLessonDto;
-    const lesson = new Lesson({ section, ...lessonsData });
+    const lesson = new Lesson({ section, index: nextIndex, ...lessonsData });
     await this.lessonsRepository.save(lesson);
     return this.sectionsRepository.findOne({
       where: { id: section.id },
@@ -50,7 +69,6 @@ export class LessonsService {
       where: { id },
     });
 
-    console.log('Content', content.path);
     const contentData = await this.cloudinaryService.uploadVideo(
       content,
       folder,
@@ -61,5 +79,33 @@ export class LessonsService {
 
     await this.lessonsRepository.save(lesson);
     return { url: contentData.secure_url };
+  }
+
+  async uploadPdfAndHtmlContnet(id: string, content: Express.Multer.File) {
+    const folder = this.configService.get<string>('CLOUDINARY_FOLDER_COURSE');
+
+    const lesson = await this.lessonsRepository.findOne({
+      where: { id },
+    });
+
+    const contentData = await this.cloudinaryService.uploadFile(
+      content,
+      folder,
+    );
+
+    lesson.contentUrl = contentData.secure_url;
+    lesson.lessonType = contentData.resource_type;
+
+    await this.lessonsRepository.save(lesson);
+    return { url: contentData.secure_url };
+  }
+
+  private async getNextLessonIndex(sectionId: string) {
+    const lastLesson = await this.lessonsRepository.findOne({
+      where: { section: { id: sectionId } },
+      order: { index: 'DESC' },
+    });
+
+    return lastLesson ? lastLesson.index + 1 : 1;
   }
 }

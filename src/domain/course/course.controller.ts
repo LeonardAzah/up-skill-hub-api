@@ -89,8 +89,7 @@ export class CourseController {
     @Param() { id }: IdDto,
     @UploadedFile(
       createContentParseFilePipe(
-        '300MB',
-        'pdf',
+        '500MB',
         'mkv',
         'mov',
         'wmv',

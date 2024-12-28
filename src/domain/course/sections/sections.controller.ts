@@ -31,10 +31,10 @@ export class SectionsController {
 
   @Patch(':id/reorder')
   async reorderSections(
-    @Param('id') { id }: IdDto,
-    @Body() { newOrder }: ReorderSectionsDto,
+    @Param() { id }: IdDto,
+    @Body() { section1, section2 }: ReorderSectionsDto,
   ) {
-    return this.sectionsService.reorderSections(id, newOrder);
+    return this.sectionsService.reorderSections(id, section1, section2);
   }
 
   @Get(':id')
