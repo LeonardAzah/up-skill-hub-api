@@ -37,7 +37,6 @@ export class SectionsService {
       .getRawOne<MaxIndexResult>();
 
     const maxIndex = maxIndexResult.maxIndex;
-    console.log(maxIndex);
 
     const nextIndex = maxIndex + 1;
 
