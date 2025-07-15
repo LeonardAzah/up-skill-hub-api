@@ -20,6 +20,7 @@ export class CloudinaryService {
       streamifier.createReadStream(file.buffer).pipe(upload);
     });
   }
+
   async uploadVideo(
     file: Express.Multer.File,
     folder: string,
@@ -33,6 +34,14 @@ export class CloudinaryService {
           resolve(result);
         },
       );
+    });
+  }
+
+  async streamVideo(publicId: string) {
+    return v2.url(publicId, {
+      resource_type: 'video',
+      format: 'mp4',
+      flags: 'streaming_attachment',
     });
   }
 }

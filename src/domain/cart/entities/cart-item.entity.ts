@@ -10,6 +10,9 @@ export class CartItem extends AbstractEntity<CartItem> {
   @Exclude({ toPlainOnly: true })
   cart: Cart;
 
+  @Column()
+  courseId: string;
+
   @ManyToOne(() => Course, (course) => course.id, { eager: true })
   course: Course;
 

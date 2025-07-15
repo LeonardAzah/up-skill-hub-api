@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
@@ -11,7 +12,10 @@ import {
 import { LessonsService } from './lessons.service';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { createContentParseFilePipe } from 'cloudinary/files/utils/file-validation.util';
+import {
+  createContentParseFilePipe,
+  createParseFilePipe,
+} from 'cloudinary/files/utils/file-validation.util';
 import { IdDto, Role, Roles } from 'common';
 import { UploadContentDto } from 'course/lessons/dto/upload-content.dto';
 import { multerOptions } from 'cloudinary/config/multer.config';
@@ -19,6 +23,7 @@ import { UpdateLessonDto } from 'course/lessons/dto/update-lesson.dto';
 import { RemoveLessonDto } from './dto/remove-lesson.dto';
 import { FileSchema } from 'cloudinary/files/swagger/schemas/file.schema';
 import { CreateLessonDto } from './dto/create-lesson.dto';
+import { StreamLessonDto } from './dto/stream-lesson.dto';
 
 @ApiTags('lessons')
 @Controller('lessons')
@@ -29,6 +34,11 @@ export class LessonsController {
   @Post()
   async save(@Body() createLessonDto: CreateLessonDto) {
     return this.lessonsService.save(createLessonDto);
+  }
+
+  @Get('stream')
+  async streamVideo(@Body() { publicId }: StreamLessonDto) {
+    return this.lessonsService.streamVideoContent(publicId);
   }
 
   @ApiConsumes('multipart/form-data')
@@ -53,6 +63,18 @@ export class LessonsController {
     content: Express.Multer.File,
   ) {
     return this.lessonsService.uploadContent(lessonId, content);
+  }
+
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: FileSchema })
+  @Patch('pdf-content')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadPdfAndHtmlContnet(
+    @Body() { lessonId }: UploadContentDto,
+    @UploadedFile(createParseFilePipe('2MB', 'pdf', 'html'))
+    file: Express.Multer.File,
+  ) {
+    return this.lessonsService.uploadPdfAndHtmlContnet(lessonId, file);
   }
 
   @Roles(Role.INSTRUCTOR)

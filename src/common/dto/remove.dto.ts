@@ -1,5 +1,5 @@
 import { IsOptional } from 'class-validator';
-import { IsBoolean } from '../decorators/validators/is-boolean.decorator';
+import { IsBoolean } from 'common/Decorators';
 
 export class RemoveDto {
   @IsOptional()
