@@ -78,7 +78,7 @@ export class LessonsService {
     lesson.lessonType = contentData.resource_type;
 
     await this.lessonsRepository.save(lesson);
-    return { url: contentData.secure_url };
+    return { url: contentData.secure_url, publicId: contentData.public_id };
   }
 
   async uploadPdfAndHtmlContnet(id: string, content: Express.Multer.File) {
@@ -98,6 +98,10 @@ export class LessonsService {
 
     await this.lessonsRepository.save(lesson);
     return { url: contentData.secure_url };
+  }
+
+  async streamVideoContent(publicId: string) {
+    return this.cloudinaryService.streamVideo(publicId);
   }
 
   private async getNextLessonIndex(sectionId: string) {

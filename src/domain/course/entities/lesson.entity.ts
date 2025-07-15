@@ -22,7 +22,7 @@ export class Lesson extends AbstractEntity<Lesson> {
   contentUrl: string;
 
   @Column()
-  sectioId: string;
+  sectionId: string;
 
   @ManyToOne(() => Section, (section) => section.lessons, {
     onDelete: 'CASCADE',

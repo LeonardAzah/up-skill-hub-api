@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
@@ -22,6 +23,7 @@ import { UpdateLessonDto } from 'course/lessons/dto/update-lesson.dto';
 import { RemoveLessonDto } from './dto/remove-lesson.dto';
 import { FileSchema } from 'cloudinary/files/swagger/schemas/file.schema';
 import { CreateLessonDto } from './dto/create-lesson.dto';
+import { StreamLessonDto } from './dto/stream-lesson.dto';
 
 @ApiTags('lessons')
 @Controller('lessons')
@@ -32,6 +34,11 @@ export class LessonsController {
   @Post()
   async save(@Body() createLessonDto: CreateLessonDto) {
     return this.lessonsService.save(createLessonDto);
+  }
+
+  @Get('stream')
+  async streamVideo(@Body() { publicId }: StreamLessonDto) {
+    return this.lessonsService.streamVideoContent(publicId);
   }
 
   @ApiConsumes('multipart/form-data')
@@ -62,7 +69,7 @@ export class LessonsController {
   @ApiBody({ type: FileSchema })
   @Patch('pdf-content')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadProfile(
+  async uploadPdfAndHtmlContnet(
     @Body() { lessonId }: UploadContentDto,
     @UploadedFile(createParseFilePipe('2MB', 'pdf', 'html'))
     file: Express.Multer.File,
