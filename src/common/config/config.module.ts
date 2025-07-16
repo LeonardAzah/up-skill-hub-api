@@ -11,11 +11,11 @@ import * as joi from 'joi';
     NestConfigModule.forRoot({
       validationSchema: joi.object({
         DATASOURCE_URL: joi.string().required(),
-        // DATASOURCE_USERNAME: joi.string().required(),
-        // DATASOURCE_PASSWORD: joi.string().required(),
-        // DATASOURCE_HOST: joi.string().required(),
-        // DATASOURCE_PORT: joi.string().required(),
-        // DATASOURCE_DATABASE: joi.string().required(),
+        DATASOURCE_USERNAME: joi.string().required(),
+        DATASOURCE_PASSWORD: joi.string().required(),
+        DATASOURCE_HOST: joi.string().required(),
+        DATASOURCE_PORT: joi.string().required(),
+        DATASOURCE_DATABASE: joi.string().required(),
         DATASOURCE_SYNCHRONIZE: joi.string().required(),
         JWT_SECRET: joi.string().required(),
         PORT: joi.number().required(),
