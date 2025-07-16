@@ -21,6 +21,7 @@ import { DatabaseExceptionFilter } from './exception-filter/database-exception/d
         // password: configService.get('DATASOURCE_PASSWORD'),
         autoLoadEntities: true,
         synchronize: configService.getOrThrow('DATASOURCE_SYNCHRONIZE'),
+        ssl: true,
       }),
       inject: [ConfigService],
     }),
