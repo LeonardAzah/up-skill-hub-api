@@ -16,6 +16,10 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
+### Visit API documentation
+```
+/docs
+```
 
 ## Test
 
